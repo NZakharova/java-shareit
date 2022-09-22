@@ -26,9 +26,9 @@ public class InMemoryUserStorage implements UserStorage {
         }
 
         var id = idGenerator.getNextId();
-        var userWithId = user.toBuilder().id(id).build();
-        users.put(id, userWithId);
-        emails.put(userWithId.getEmail(), userWithId);
+        user.setId(id);
+        users.put(id, user);
+        emails.put(user.getEmail(), user);
         return id;
     }
 
@@ -50,8 +50,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public void updateName(int id, String name) {
         var existing = find(id);
-        var updated = existing.toBuilder().name(name).build();
-        users.replace(id, updated);
+        existing.setName(name);
     }
 
     @Override
@@ -62,10 +61,10 @@ public class InMemoryUserStorage implements UserStorage {
             throw new DuplicateObjectException("email");
         }
 
-        var updated = existing.toBuilder().email(email).build();
-        users.replace(id, updated);
         emails.remove(existing.getEmail());
-        emails.put(email, updated);
+
+        existing.setEmail(email);
+        emails.put(email, existing);
     }
 
     @Override

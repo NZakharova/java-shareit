@@ -1,18 +1,21 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 
 @Data
-@Builder(toBuilder = true)
+@AllArgsConstructor
 public class Item {
+    private int id;
     private final int userId;
-    private final int id;
+
     @NotNull
-    private final String description;
+    private String name;
+
     @NotNull
-    private final String name;
-    private final boolean available;
+    private String description;
+
+    private boolean available;
 }

@@ -5,9 +5,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.utils.IdGenerator;
 import ru.practicum.shareit.utils.ObjectNotFoundException;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -16,6 +14,7 @@ public class InMemoryItemStorage implements ItemStorage {
     private final IdGenerator idGenerator;
 
     private final Map<Integer, Item> items = new HashMap<>();
+    private final Map<Integer, List<Item>> itemsByUser = new LinkedHashMap<>();
 
     public InMemoryItemStorage(IdGenerator idGenerator) {
         this.idGenerator = idGenerator;
@@ -38,40 +37,48 @@ public class InMemoryItemStorage implements ItemStorage {
 
     @Override
     public Collection<Item> findAll(int userId) {
-        return items.values().stream().filter(i -> i.getUserId() == userId).collect(Collectors.toList());
+        var list = itemsByUser.get(userId);
+        if (list == null) {
+            return Collections.emptyList();
+        }
+        return list;
     }
 
     @Override
     public int add(Item item) {
-        var forAdd = item.toBuilder().id(idGenerator.getNextId()).build();
-        items.put(forAdd.getId(), forAdd);
-        return forAdd.getId();
+        int id = idGenerator.getNextId();
+        item.setId(id);
+        items.put(id, item);
+
+        itemsByUser.computeIfAbsent(item.getUserId(), i -> new ArrayList<>()).add(item);
+
+        return id;
     }
 
     @Override
     public void delete(int id) {
-        items.remove(id);
+        var removed = items.remove(id);
+        if (removed != null) {
+            itemsByUser.get(removed.getUserId()).remove(removed);
+        }
     }
 
     @Override
     public void updateName(int id, String name) {
         var item = find(id);
-        var updated = item.toBuilder().name(name).build();
-        items.replace(id, updated);
+        item.setName(name);
     }
 
     @Override
     public void updateDescription(int id, String description) {
         var item = find(id);
-        var updated = item.toBuilder().description(description).build();
-        items.replace(id, updated);
+        item.setDescription(description);
     }
 
     @Override
     public void updateAvailable(int id, boolean available) {
         var item = find(id);
-        var updated = item.toBuilder().available(available).build();
-        items.replace(id, updated);
+        item.setAvailable(available);
     }
 
     @Override

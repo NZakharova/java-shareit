@@ -21,12 +21,12 @@ public class ItemMapper {
     }
 
     public static Item toModel(ItemDto item) {
-        return Item.builder()
-                .id(Optional.ofNullable(item.getId()).orElse(0))
-                .userId(item.getUserId())
-                .name(item.getName())
-                .description(item.getDescription())
-                .available(item.getAvailable())
-                .build();
+        return new Item(
+                Optional.ofNullable(item.getId()).orElse(0),
+                item.getUserId(),
+                item.getName(),
+                item.getDescription(),
+                item.getAvailable()
+        );
     }
 }

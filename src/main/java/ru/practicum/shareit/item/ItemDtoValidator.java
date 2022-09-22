@@ -13,13 +13,6 @@ public class ItemDtoValidator {
         this.validator = validator;
     }
 
-    public void validateForAdd(ItemDto item) {
-        validator.validateNotEmpty(item.getName(), "name");
-        validator.validateNotNull(item.getAvailable(), "available");
-        validator.validateNotNull(item.getUserId(), "userId");
-        validator.validateNotNull(item.getDescription(), "description");
-    }
-
     public void validateForUpdate(ItemDto item) {
         int fields = 0;
         if (item.getName() != null) {

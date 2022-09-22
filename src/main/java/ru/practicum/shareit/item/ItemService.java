@@ -39,7 +39,6 @@ public class ItemService {
     int add(ItemDto item) {
         userStorage.find(item.getUserId()); // проверим что пользователь существует
 
-        itemDtoValidator.validateForAdd(item);
         Item i = ItemMapper.toModel(item);
         itemValidator.validate(i);
         return itemStorage.add(i);

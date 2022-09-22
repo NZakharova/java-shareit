@@ -2,16 +2,16 @@ package ru.practicum.shareit.user;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.NonNull;
+import javax.validation.constraints.NotNull;
 
 @Data
 @Builder(toBuilder = true)
 public class User {
     private final int id;
 
-    @NonNull
+    @NotNull
     private final String name;
 
-    @NonNull
+    @NotNull
     private final String email;
 }

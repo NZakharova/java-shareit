@@ -12,11 +12,6 @@ public class UserDtoValidator {
         this.validator = validator;
     }
 
-    public void validateForAdd(UserDto dto) {
-        validator.validateNotEmpty(dto.getName(), "name");
-        validator.validateEmail(dto.getEmail());
-    }
-
     public void validateForUpdate(UserDto dto) {
         int fields = 0;
         if (dto.getName() != null) {

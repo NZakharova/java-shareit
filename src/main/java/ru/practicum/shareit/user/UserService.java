@@ -18,7 +18,6 @@ public class UserService {
     }
 
     public int add(UserDto user) {
-        userDtoValidator.validateForAdd(user);
         return userStorage.add(convertAndValidate(user));
     }
 

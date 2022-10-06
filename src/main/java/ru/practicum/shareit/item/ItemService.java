@@ -3,29 +3,31 @@ package ru.practicum.shareit.item;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserStorage;
+import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.utils.InvalidObjectException;
+import ru.practicum.shareit.utils.ObjectNotFoundException;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ItemService {
     private final ItemValidator itemValidator;
     private final ItemDtoValidator itemDtoValidator;
-    private final ItemStorage itemStorage;
-    private final UserStorage userStorage;
+    private final ItemRepository itemStorage;
+    private final UserRepository userRepository;
 
-    public ItemService(ItemValidator itemValidator, ItemDtoValidator itemDtoValidator, ItemStorage storage, UserStorage userStorage) {
+    public ItemService(ItemValidator itemValidator, ItemDtoValidator itemDtoValidator, ItemRepository storage, UserRepository userRepository) {
         this.itemValidator = itemValidator;
         this.itemDtoValidator = itemDtoValidator;
         this.itemStorage = storage;
-        this.userStorage = userStorage;
+        this.userRepository = userRepository;
     }
 
     ItemDto find(int id) {
-        return ItemMapper.toDto(itemStorage.find(id));
+        return ItemMapper.toDto(itemStorage.findById(id).orElseThrow(() -> { throw new ObjectNotFoundException(id); }));
     }
 
     List<ItemDto> findAll() {
@@ -33,49 +35,56 @@ public class ItemService {
     }
 
     List<ItemDto> findAll(int userId) {
-        return itemStorage.findAll(userId).stream().map(ItemMapper::toDto).collect(Collectors.toList());
+        return itemStorage.findByUserId(userId).stream().map(ItemMapper::toDto).collect(Collectors.toList());
     }
 
     int add(ItemDto item) {
-        userStorage.find(item.getUserId()); // проверим что пользователь существует
+        if (!userRepository.existsById(item.getUserId())) {
+            throw new ObjectNotFoundException(item.getUserId());
+        }
 
         Item i = ItemMapper.toModel(item);
         itemValidator.validate(i);
-        return itemStorage.add(i);
+        return itemStorage.save(i).getId();
     }
 
     void update(ItemDto item) {
         itemDtoValidator.validateForUpdate(item);
 
-        if (item.getUserId() != null) {
-            var existing = itemStorage.find(item.getId());
-            if (existing.getUserId() != item.getUserId()) {
-                throw new InvalidObjectException("Данный предмет принадлежит другому пользователю");
-            }
+        var existing = itemStorage
+                .findById(item.getId())
+                .orElseThrow(() -> new ObjectNotFoundException(item.getId()));
+
+        if (item.getUserId() != null && existing.getUserId() != item.getUserId()) {
+            throw new InvalidObjectException("Данный предмет принадлежит другому пользователю");
         }
 
         if (item.getName() != null) {
-            itemStorage.updateName(item.getId(), item.getName());
+            existing.setName(item.getName());
         }
 
         if (item.getDescription() != null) {
-            itemStorage.updateDescription(item.getId(), item.getDescription());
+            existing.setDescription(item.getDescription());
         }
 
         if (item.getAvailable() != null) {
-            itemStorage.updateAvailable(item.getId(), item.getAvailable());
+            existing.setAvailable(item.getAvailable());
         }
+
+        itemStorage.save(existing);
     }
 
     void delete(int id) {
-        itemStorage.delete(id);
+        itemStorage.deleteById(id);
     }
 
     public List<ItemDto> search(String text) {
         if (text == null || text.isEmpty()) {
             return Collections.emptyList();
         } else {
-            return itemStorage.search(text).stream().map(ItemMapper::toDto).collect(Collectors.toList());
+            var list1 = itemStorage.findByNameContainingIgnoreCaseAndAvailable(text, true).stream();
+            var list2 = itemStorage.findByDescriptionContainingIgnoreCaseAndAvailable(text, true).stream();
+            return Stream.concat(list1, list2).distinct().map(ItemMapper::toDto).collect(Collectors.toList());
         }
     }
 }

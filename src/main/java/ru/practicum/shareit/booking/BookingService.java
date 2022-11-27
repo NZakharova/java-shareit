@@ -89,13 +89,26 @@ public class BookingService {
             throw new ObjectNotFoundException(ownerId);
         }
 
-        return bookingRepository
-                .findAll()
-                .stream()
-                .filter(b -> itemRepository.findById(b.getItemId()).orElseThrow().getUserId() == ownerId || b.getBookerId() == ownerId)
-                .map(mapper::toDto)
-                .sorted((b1, b2) -> b1.getStart().compareTo(b2.getEnd()) * -1)
-                .collect(Collectors.toList());
+        switch (searchKind) {
+            case CURRENT:
+            case PAST:
+            case FUTURE:
+            case ALL:
+                return bookingRepository
+                        .findAll()
+                        .stream()
+                        .filter(b -> itemRepository.findById(b.getItemId()).orElseThrow().getUserId() == ownerId || b.getBookerId() == ownerId)
+                        .map(mapper::toDto)
+                        .sorted((b1, b2) -> b1.getStart().compareTo(b2.getEnd()) * -1)
+                        .collect(Collectors.toList());
+            case WAITING:
+                return toDto(bookingRepository.findByOwnerIdAndStatusOrderByStartDateDesc(ownerId, BookingStatus.WAITING));
+            case REJECTED:
+                return toDto(bookingRepository.findByOwnerIdAndStatusOrderByStartDateDesc(ownerId, BookingStatus.REJECTED));
+            default:
+                throw new UnsupportedOperationException("Not implemented");
+        }
+
     }
 
     public void setApproved(int bookerId, int bookingId, boolean approved) {

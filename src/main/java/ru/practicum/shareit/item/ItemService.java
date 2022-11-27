@@ -18,24 +18,26 @@ public class ItemService {
     private final ItemDtoValidator itemDtoValidator;
     private final ItemRepository itemStorage;
     private final UserRepository userRepository;
+    private final ItemMapper itemMapper;
 
-    public ItemService(ItemValidator itemValidator, ItemDtoValidator itemDtoValidator, ItemRepository storage, UserRepository userRepository) {
+    public ItemService(ItemValidator itemValidator, ItemDtoValidator itemDtoValidator, ItemRepository storage, UserRepository userRepository, ItemMapper itemMapper) {
         this.itemValidator = itemValidator;
         this.itemDtoValidator = itemDtoValidator;
         this.itemStorage = storage;
         this.userRepository = userRepository;
+        this.itemMapper = itemMapper;
     }
 
     ItemDto find(int id) {
-        return ItemMapper.toDto(itemStorage.findById(id).orElseThrow(() -> { throw new ObjectNotFoundException(id); }));
+        return itemMapper.toDto(itemStorage.findById(id).orElseThrow());
     }
 
     List<ItemDto> findAll() {
-        return itemStorage.findAll().stream().map(ItemMapper::toDto).collect(Collectors.toList());
+        return itemStorage.findAll().stream().map(itemMapper::toDto).collect(Collectors.toList());
     }
 
     List<ItemDto> findAll(int userId) {
-        return itemStorage.findByUserId(userId).stream().map(ItemMapper::toDto).collect(Collectors.toList());
+        return itemStorage.findByUserId(userId).stream().map(itemMapper::toDto).collect(Collectors.toList());
     }
 
     int add(ItemDto item) {
@@ -43,7 +45,7 @@ public class ItemService {
             throw new ObjectNotFoundException(item.getUserId());
         }
 
-        Item i = ItemMapper.toModel(item);
+        Item i = itemMapper.toModel(item);
         itemValidator.validate(i);
         return itemStorage.save(i).getId();
     }
@@ -53,7 +55,7 @@ public class ItemService {
 
         var existing = itemStorage
                 .findById(item.getId())
-                .orElseThrow(() -> new ObjectNotFoundException(item.getId()));
+                .orElseThrow();
 
         if (item.getUserId() != null && existing.getUserId() != item.getUserId()) {
             throw new InvalidObjectException("Данный предмет принадлежит другому пользователю");
@@ -84,7 +86,7 @@ public class ItemService {
         } else {
             var list1 = itemStorage.findByNameContainingIgnoreCaseAndAvailable(text, true).stream();
             var list2 = itemStorage.findByDescriptionContainingIgnoreCaseAndAvailable(text, true).stream();
-            return Stream.concat(list1, list2).distinct().map(ItemMapper::toDto).collect(Collectors.toList());
+            return Stream.concat(list1, list2).distinct().map(itemMapper::toDto).collect(Collectors.toList());
         }
     }
 }

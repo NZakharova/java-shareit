@@ -1,8 +1,6 @@
 package ru.practicum.shareit.user;
 
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.utils.DuplicateObjectException;
-import ru.practicum.shareit.utils.ObjectNotFoundException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,17 +20,11 @@ public class UserService {
     public int add(UserDto user) {
         var userModel = convertAndValidate(user);
 
-        // если email дублируется, то база данных сначал увеличивает счётчик, а потом кидает исключение.
-        // из-за этого созданный пользователь имеет неправильный id и тесты не проходят
-        if (userRepository.findByEmail(userModel.getEmail()) != null) {
-            throw new DuplicateObjectException("email");
-        }
-
         return userRepository.save(userModel).getId();
     }
 
     public UserDto find(int id) {
-        return UserMapper.toDto(userRepository.findById(id).orElseThrow(() -> { throw new ObjectNotFoundException(id); }));
+        return UserMapper.toDto(userRepository.findById(id).orElseThrow());
     }
 
     public List<UserDto> findAll() {
@@ -42,7 +34,7 @@ public class UserService {
     public void update(UserDto dto) {
         userDtoValidator.validateForUpdate(dto);
 
-        var existing = userRepository.findById(dto.getId()).orElseThrow(() -> { throw new ObjectNotFoundException(dto.getId()); });
+        var existing = userRepository.findById(dto.getId()).orElseThrow();
 
         if (dto.getEmail() != null) {
             existing.setEmail(dto.getEmail());

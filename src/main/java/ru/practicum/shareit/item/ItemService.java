@@ -1,35 +1,38 @@
 package ru.practicum.shareit.item;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.BookingMapper;
+import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.utils.InvalidObjectException;
 import ru.practicum.shareit.utils.ObjectNotFoundException;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
+@RequiredArgsConstructor
 public class ItemService {
     private final ItemValidator itemValidator;
     private final ItemDtoValidator itemDtoValidator;
     private final ItemRepository itemStorage;
     private final UserRepository userRepository;
     private final ItemMapper itemMapper;
-
-    public ItemService(ItemValidator itemValidator, ItemDtoValidator itemDtoValidator, ItemRepository storage, UserRepository userRepository, ItemMapper itemMapper) {
-        this.itemValidator = itemValidator;
-        this.itemDtoValidator = itemDtoValidator;
-        this.itemStorage = storage;
-        this.userRepository = userRepository;
-        this.itemMapper = itemMapper;
-    }
+    private final BookingRepository bookingRepository;
 
     ItemDto find(int id) {
         return itemMapper.toDto(itemStorage.findById(id).orElseThrow());
+    }
+
+    ItemDto find(int id, int userId) {
+        var dto = find(id);
+        return addBookings(dto, userId);
     }
 
     List<ItemDto> findAll() {
@@ -37,7 +40,7 @@ public class ItemService {
     }
 
     List<ItemDto> findAll(int userId) {
-        return itemStorage.findByUserId(userId).stream().map(itemMapper::toDto).collect(Collectors.toList());
+        return itemStorage.findByUserId(userId).stream().map(itemMapper::toDto).map(x -> addBookings(x, userId)).collect(Collectors.toList());
     }
 
     int add(ItemDto item) {
@@ -88,5 +91,24 @@ public class ItemService {
             var list2 = itemStorage.findByDescriptionContainingIgnoreCaseAndAvailable(text, true).stream();
             return Stream.concat(list1, list2).distinct().map(itemMapper::toDto).collect(Collectors.toList());
         }
+    }
+
+    private ItemDto addBookings(ItemDto dto, int userId) {
+        var builder = dto.toBuilder();
+        if (userId == dto.getUserId()) {
+            var now = LocalDateTime.now();
+            var lastBooking = bookingRepository.findFirstByItemIdAndEndDateBeforeOrderByStartDateDesc(dto.getId(), now);
+            var nextBooking = bookingRepository.findFirstByItemIdAndEndDateAfterOrderByStartDateAsc(dto.getId(), now);
+
+            if (lastBooking != null) {
+                builder.lastBooking(BookingMapper.toShortDto(lastBooking));
+            }
+
+            if (nextBooking != null) {
+                builder.nextBooking(BookingMapper.toShortDto(nextBooking));
+            }
+        }
+
+        return builder.build();
     }
 }

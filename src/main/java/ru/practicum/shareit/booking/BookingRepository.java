@@ -8,9 +8,13 @@ import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
     List<Booking> findByBookerIdOrderByStartDateDesc(int bookerId);
+
     List<Booking> findByBookerIdAndStatusOrderByStartDateDesc(int bookerId, BookingStatus status);
+
     List<Booking> findByBookerIdAndStartDateAfterOrderByStartDateDesc(int bookerId, LocalDateTime date);
+
     List<Booking> findByBookerIdAndEndDateBeforeOrderByStartDateDesc(int bookerId, LocalDateTime date);
+
     List<Booking> findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(int bookerId, LocalDateTime date, LocalDateTime date2);
 
     @Query("SELECT b FROM Booking b " +
@@ -44,6 +48,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     List<Booking> findByOwnerIdOrderByStartDateDesc(int ownerId);
 
     Booking findFirstByItemIdAndEndDateBeforeOrderByStartDateDesc(int itemId, LocalDateTime date);
+
     Booking findFirstByItemIdAndEndDateAfterOrderByStartDateAsc(int itemId, LocalDateTime date);
 
     List<Booking> findByBookerIdAndItemId(int bookerId, int itemId);

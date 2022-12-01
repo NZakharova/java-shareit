@@ -91,16 +91,13 @@ public class BookingService {
 
         switch (searchKind) {
             case CURRENT:
+                return toDto(bookingRepository.findCurrentByOwnerIdOrderByStartDateDesc(ownerId, LocalDateTime.now()));
             case PAST:
+                return toDto(bookingRepository.findPastByOwnerIdOrderByStartDateDesc(ownerId, LocalDateTime.now()));
             case FUTURE:
+                return toDto(bookingRepository.findFutureByOwnerIdOrderByStartDateDesc(ownerId, LocalDateTime.now()));
             case ALL:
-                return bookingRepository
-                        .findAll()
-                        .stream()
-                        .filter(b -> itemRepository.findById(b.getItemId()).orElseThrow().getUserId() == ownerId || b.getBookerId() == ownerId)
-                        .map(mapper::toDto)
-                        .sorted((b1, b2) -> b1.getStart().compareTo(b2.getEnd()) * -1)
-                        .collect(Collectors.toList());
+                return toDto(bookingRepository.findByOwnerIdOrderByStartDateDesc(ownerId));
             case WAITING:
                 return toDto(bookingRepository.findByOwnerIdAndStatusOrderByStartDateDesc(ownerId, BookingStatus.WAITING));
             case REJECTED:

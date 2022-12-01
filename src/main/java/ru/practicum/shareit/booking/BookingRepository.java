@@ -19,6 +19,30 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "ORDER BY b.startDate DESC")
     List<Booking> findByOwnerIdAndStatusOrderByStartDateDesc(int ownerId, BookingStatus status);
 
+    @Query("SELECT b FROM Booking b " +
+            "INNER JOIN Item i on i.id = b.itemId AND i.userId = ?1 " +
+            "WHERE b.endDate < ?2 " +
+            "ORDER BY b.startDate DESC")
+    List<Booking> findPastByOwnerIdOrderByStartDateDesc(int ownerId, LocalDateTime date);
+
+    @Query("SELECT b FROM Booking b " +
+            "INNER JOIN Item i on i.id = b.itemId AND i.userId = ?1 " +
+            "WHERE b.startDate > ?2 " +
+            "ORDER BY b.startDate DESC")
+    List<Booking> findFutureByOwnerIdOrderByStartDateDesc(int ownerId, LocalDateTime date);
+
+
+    @Query("SELECT b FROM Booking b " +
+            "INNER JOIN Item i on i.id = b.itemId AND i.userId = ?1 " +
+            "WHERE b.startDate < ?2 AND b.endDate > ?2" +
+            "ORDER BY b.startDate DESC")
+    List<Booking> findCurrentByOwnerIdOrderByStartDateDesc(int ownerId, LocalDateTime date);
+
+    @Query("SELECT b FROM Booking b " +
+            "INNER JOIN Item i on i.id = b.itemId AND i.userId = ?1 " +
+            "ORDER BY b.startDate DESC")
+    List<Booking> findByOwnerIdOrderByStartDateDesc(int ownerId);
+
     Booking findFirstByItemIdAndEndDateBeforeOrderByStartDateDesc(int itemId, LocalDateTime date);
     Booking findFirstByItemIdAndEndDateAfterOrderByStartDateAsc(int itemId, LocalDateTime date);
 

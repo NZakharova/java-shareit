@@ -9,6 +9,8 @@ import java.util.List;
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Integer> {
     List<Item> findByUserId(int userId);
+
     List<Item> findByNameContainingIgnoreCaseAndAvailable(String text, boolean available);
+
     List<Item> findByDescriptionContainingIgnoreCaseAndAvailable(String text, boolean available);
 }

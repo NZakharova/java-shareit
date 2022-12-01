@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.booking.ItemUnavailableException;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
@@ -25,6 +28,8 @@ public class ItemService {
     private final UserRepository userRepository;
     private final ItemMapper itemMapper;
     private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
+    private final CommentMapper commentMapper;
 
     ItemDto find(int id) {
         return itemMapper.toDto(itemStorage.findById(id).orElseThrow());
@@ -91,6 +96,25 @@ public class ItemService {
             var list2 = itemStorage.findByDescriptionContainingIgnoreCaseAndAvailable(text, true).stream();
             return Stream.concat(list1, list2).distinct().map(itemMapper::toDto).collect(Collectors.toList());
         }
+    }
+
+    public int addComment(int userId, int itemId, CommentDto comment) {
+        // проверим что предмет существует
+        find(itemId);
+
+        var bookings = bookingRepository.findByBookerIdAndItemId(userId, itemId);
+        var now = LocalDateTime.now();
+        if (bookings.stream().noneMatch(b -> b.getStatus() == BookingStatus.APPROVED && b.getStartDate().isBefore(now))) {
+            // можно оставлять комментарии только для арендованных предметов
+            throw new ItemUnavailableException();
+        }
+
+        var c = commentMapper.toModel(comment, itemId, userId, LocalDateTime.now());
+        return commentRepository.save(c).getId();
+    }
+
+    public CommentDto findComment(int id) {
+        return commentMapper.toDto(commentRepository.findById(id).orElseThrow());
     }
 
     private ItemDto addBookings(ItemDto dto, int userId) {

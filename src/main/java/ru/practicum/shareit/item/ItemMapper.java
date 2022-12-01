@@ -1,18 +1,32 @@
 package ru.practicum.shareit.item;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ItemMapper {
+    private final CommentRepository commentRepository;
+    private final CommentMapper commentMapper;
+
     public ItemDto toDto(Item item) {
+        var comments = commentRepository
+                .findByItemId(item.getId())
+                .stream()
+                .map(commentMapper::toDto)
+                .collect(Collectors.toList());
+
         var builder = ItemDto.builder()
                 .id(item.getId())
                 .userId(item.getUserId())
                 .name(item.getName())
                 .description(item.getDescription())
+                .comments(comments)
                 .available(item.isAvailable());
 
         return builder.build();
@@ -28,3 +42,4 @@ public class ItemMapper {
         );
     }
 }
+

@@ -5,24 +5,20 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.CreateBookingRequest;
 import ru.practicum.shareit.booking.dto.ShortBookingDto;
-import ru.practicum.shareit.item.ItemMapper;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserMapper;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.user.UserDto;
 
 @Service
 @RequiredArgsConstructor
 public class BookingMapper {
-    private final ItemMapper itemMapper;
-
-    public BookingDto toDto(Booking booking, Item item, User booker) {
+    public BookingDto toDto(Booking booking, ItemDto item, UserDto booker) {
         return new BookingDto(booking.getId(),
                 booking.getBookerId(),
                 booking.getStartDate(),
                 booking.getEndDate(),
                 booking.getStatus(),
-                itemMapper.toDto(item),
-                UserMapper.toDto(booker)
+                item,
+                booker
         );
     }
 

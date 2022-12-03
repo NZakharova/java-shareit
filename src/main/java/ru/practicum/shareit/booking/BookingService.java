@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.CreateBookingRequest;
-import ru.practicum.shareit.item.ItemRepository;
-import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.item.ItemService;
+import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.utils.ObjectNotFoundException;
 import ru.practicum.shareit.utils.ValidationException;
 
@@ -17,19 +17,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BookingService {
     private final BookingRepository bookingRepository;
-    private final ItemRepository itemRepository;
     private final BookingMapper mapper;
-    private final UserRepository userRepository;
     private final BookingValidator bookingValidator;
+    private final UserService userService;
+    private final ItemService itemService;
 
     public int create(int bookerId, CreateBookingRequest dto) {
         bookingValidator.validate(dto);
 
-        if (userRepository.findById(bookerId).isEmpty()) {
-            throw new ObjectNotFoundException(bookerId, "booker");
-        }
-
-        if (itemRepository.findById(dto.getItemId()).orElseThrow().getUserId() == bookerId) {
+        userService.find(bookerId);
+        if (itemService.find(dto.getItemId()).getUserId() == bookerId) {
             // нельзя забронировать свой предмет
             throw new ObjectNotFoundException(dto.getItemId(), "item");
         }
@@ -50,15 +47,14 @@ public class BookingService {
 
     public BookingDto find(int id) {
         var booking = bookingRepository.findById(id).orElseThrow();
-        var item = itemRepository.findById(booking.getItemId()).orElseThrow();
-        var booker = userRepository.findById(booking.getBookerId()).orElseThrow();
+        var item = itemService.find(booking.getItemId());
+        var booker = userService.find(booking.getBookerId());
+
         return mapper.toDto(booking, item, booker);
     }
 
     public List<BookingDto> find(int bookerId, BookingSearchKind searchKind) {
-        if (userRepository.findById(bookerId).isEmpty()) {
-            throw new ObjectNotFoundException(bookerId, "booker");
-        }
+        userService.find(bookerId);
 
         switch (searchKind) {
             case ALL:
@@ -80,9 +76,7 @@ public class BookingService {
     }
 
     public List<BookingDto> findOwned(int ownerId, BookingSearchKind searchKind) {
-        if (userRepository.findById(ownerId).isEmpty()) {
-            throw new ObjectNotFoundException(ownerId, "owner");
-        }
+        userService.find(ownerId);
 
         switch (searchKind) {
             case CURRENT:
@@ -100,25 +94,21 @@ public class BookingService {
             default:
                 throw new UnsupportedOperationException("Not implemented");
         }
-
     }
 
     public void setApproved(int bookerId, int bookingId, boolean approved) {
         var booking = bookingRepository.findById(bookingId).orElseThrow();
-        var item = itemRepository.findById(booking.getItemId()).orElseThrow();
+        var item = itemService.find(booking.getItemId());
         if (item.getUserId() != bookerId) {
             throw new ObjectNotFoundException(bookerId, "item");
         }
 
-        if (!isValidTransition(booking.getStatus(), approved ? BookingStatus.APPROVED : BookingStatus.REJECTED)) {
+        var statusToSet = approved ? BookingStatus.APPROVED : BookingStatus.REJECTED;
+        if (!isValidTransition(booking.getStatus(), statusToSet)) {
             throw new ValidationException("Нельзя изменить статус после подтверждения брони");
         }
 
-        if (approved) {
-            booking.setStatus(BookingStatus.APPROVED);
-        } else {
-            booking.setStatus(BookingStatus.REJECTED);
-        }
+        booking.setStatus(statusToSet);
 
         bookingRepository.save(booking);
     }
@@ -130,8 +120,9 @@ public class BookingService {
             case APPROVED:
                 return to == BookingStatus.REJECTED;
             case REJECTED:
-            default:
                 return false;
+            default:
+                throw new IllegalArgumentException();
         }
     }
 
@@ -139,8 +130,8 @@ public class BookingService {
         return bookings
                 .stream()
                 .map(b -> {
-                    var item = itemRepository.findById(b.getItemId()).orElseThrow();
-                    var booker = userRepository.findById(b.getBookerId()).orElseThrow();
+                    var item = itemService.find(b.getItemId());
+                    var booker = userService.find(b.getBookerId());
                     return mapper.toDto(b, item, booker);
                 })
                 .collect(Collectors.toList());

@@ -31,24 +31,20 @@ public class ItemService {
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
 
-    ItemDto find(int id) {
+    public ItemDto find(int id) {
         return itemMapper.toDto(itemStorage.findById(id).orElseThrow());
     }
 
-    ItemDto find(int id, int userId) {
+    public ItemDto find(int id, int userId) {
         var dto = find(id);
         return addBookings(dto, userId);
     }
 
-    List<ItemDto> findAll() {
-        return itemStorage.findAll().stream().map(itemMapper::toDto).collect(Collectors.toList());
-    }
-
-    List<ItemDto> findAll(int userId) {
+    public List<ItemDto> findAll(int userId) {
         return itemStorage.findByUserId(userId).stream().map(itemMapper::toDto).map(x -> addBookings(x, userId)).collect(Collectors.toList());
     }
 
-    int add(ItemDto item) {
+    public int add(ItemDto item) {
         if (!userRepository.existsById(item.getUserId())) {
             throw new ObjectNotFoundException(item.getUserId(), "user");
         }
@@ -58,7 +54,7 @@ public class ItemService {
         return itemStorage.save(i).getId();
     }
 
-    void update(ItemDto item) {
+    public void update(ItemDto item) {
         itemDtoValidator.validateForUpdate(item);
 
         var existing = itemStorage
@@ -84,7 +80,7 @@ public class ItemService {
         itemStorage.save(existing);
     }
 
-    void delete(int id) {
+    public void delete(int id) {
         itemStorage.deleteById(id);
     }
 
@@ -118,8 +114,8 @@ public class ItemService {
     }
 
     private ItemDto addBookings(ItemDto dto, int userId) {
-        var builder = dto.toBuilder();
         if (userId == dto.getUserId()) {
+            var builder = dto.toBuilder();
             var now = LocalDateTime.now();
             var lastBooking = bookingRepository.findFirstByItemIdAndEndDateBeforeOrderByStartDateDesc(dto.getId(), now);
             var nextBooking = bookingRepository.findFirstByItemIdAndEndDateAfterOrderByStartDateAsc(dto.getId(), now);
@@ -131,8 +127,9 @@ public class ItemService {
             if (nextBooking != null) {
                 builder.nextBooking(BookingMapper.toShortDto(nextBooking));
             }
+            return builder.build();
         }
 
-        return builder.build();
+        return dto;
     }
 }

@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.CreateBookingRequest;
@@ -10,16 +11,11 @@ import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserRepository;
 
 @Service
+@RequiredArgsConstructor
 public class BookingMapper {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final ItemMapper itemMapper;
-
-    public BookingMapper(ItemRepository itemRepository, UserRepository userRepository, ItemMapper itemMapper) {
-        this.itemRepository = itemRepository;
-        this.userRepository = userRepository;
-        this.itemMapper = itemMapper;
-    }
 
     public BookingDto toDto(Booking booking) {
         var item = itemRepository.findById(booking.getItemId()).orElseThrow();

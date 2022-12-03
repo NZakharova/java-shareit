@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
@@ -9,12 +10,9 @@ import ru.practicum.shareit.utils.Create;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 public class ItemController {
     private final ItemService service;
-
-    public ItemController(ItemService service) {
-        this.service = service;
-    }
 
     @GetMapping("/items/{id}")
     public ItemDto getItem(@RequestHeader("X-Sharer-User-Id") int userId, @PathVariable int id) {

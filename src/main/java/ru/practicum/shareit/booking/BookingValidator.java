@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.CreateBookingRequest;
 import ru.practicum.shareit.item.ItemRepository;
@@ -8,12 +9,9 @@ import ru.practicum.shareit.utils.ValidationException;
 import java.time.LocalDateTime;
 
 @Service
+@RequiredArgsConstructor
 public class BookingValidator {
     private final ItemRepository itemRepository;
-
-    public BookingValidator(ItemRepository itemRepository) {
-        this.itemRepository = itemRepository;
-    }
 
     public void validate(CreateBookingRequest dto) {
         if (dto.getStart().isBefore(LocalDateTime.now())) {

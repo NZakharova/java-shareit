@@ -1,21 +1,17 @@
 package ru.practicum.shareit.user;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserValidator userValidator;
     private final UserDtoValidator userDtoValidator;
     private final UserRepository userRepository;
-
-    public UserService(UserRepository userRepository, UserValidator userValidator, UserDtoValidator userDtoValidator) {
-        this.userRepository = userRepository;
-        this.userValidator = userValidator;
-        this.userDtoValidator = userDtoValidator;
-    }
 
     public int add(UserDto user) {
         var userModel = convertAndValidate(user);

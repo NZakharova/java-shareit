@@ -1,16 +1,14 @@
 package ru.practicum.shareit.user;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.utils.ValidationException;
 import ru.practicum.shareit.utils.Validator;
 
 @Service
+@RequiredArgsConstructor
 public class UserDtoValidator {
     private final Validator validator;
-
-    public UserDtoValidator(Validator validator) {
-        this.validator = validator;
-    }
 
     public void validateForUpdate(UserDto dto) {
         int fields = 0;

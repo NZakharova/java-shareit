@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.CreateBookingRequest;
@@ -13,21 +14,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class BookingService {
-
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
     private final BookingMapper mapper;
     private final UserRepository userRepository;
     private final BookingValidator bookingValidator;
-
-    public BookingService(BookingRepository bookingRepository, ItemRepository itemRepository, BookingMapper mapper, UserRepository userRepository, BookingValidator bookingValidator) {
-        this.bookingRepository = bookingRepository;
-        this.itemRepository = itemRepository;
-        this.mapper = mapper;
-        this.userRepository = userRepository;
-        this.bookingValidator = bookingValidator;
-    }
 
     public int create(int bookerId, CreateBookingRequest dto) {
         bookingValidator.validate(dto);

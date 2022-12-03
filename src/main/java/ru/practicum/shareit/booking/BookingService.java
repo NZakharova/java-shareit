@@ -26,12 +26,12 @@ public class BookingService {
         bookingValidator.validate(dto);
 
         if (userRepository.findById(bookerId).isEmpty()) {
-            throw new ObjectNotFoundException(bookerId);
+            throw new ObjectNotFoundException(bookerId, "booker");
         }
 
         if (itemRepository.findById(dto.getItemId()).orElseThrow().getUserId() == bookerId) {
             // нельзя забронировать свой предмет
-            throw new ObjectNotFoundException(dto.getItemId());
+            throw new ObjectNotFoundException(dto.getItemId(), "item");
         }
 
         var booking = mapper.toModel(dto, bookerId);
@@ -43,7 +43,7 @@ public class BookingService {
         var booking = find(id);
         // бронь доступна только владельцу или бронируещему
         if (booking.getBooker().getId() != bookerId && booking.getItem().getUserId() != bookerId) {
-            throw new ObjectNotFoundException(bookerId);
+            throw new ObjectNotFoundException(id, "booking");
         }
         return booking;
     }
@@ -55,7 +55,7 @@ public class BookingService {
 
     public List<BookingDto> find(int bookerId, BookingSearchKind searchKind) {
         if (userRepository.findById(bookerId).isEmpty()) {
-            throw new ObjectNotFoundException(bookerId);
+            throw new ObjectNotFoundException(bookerId, "booker");
         }
 
         switch (searchKind) {
@@ -79,7 +79,7 @@ public class BookingService {
 
     public List<BookingDto> findOwned(int ownerId, BookingSearchKind searchKind) {
         if (userRepository.findById(ownerId).isEmpty()) {
-            throw new ObjectNotFoundException(ownerId);
+            throw new ObjectNotFoundException(ownerId, "owner");
         }
 
         switch (searchKind) {
@@ -105,7 +105,7 @@ public class BookingService {
         var booking = bookingRepository.findById(bookingId).orElseThrow();
         var item = itemRepository.findById(booking.getItemId()).orElseThrow();
         if (item.getUserId() != bookerId) {
-            throw new ObjectNotFoundException(bookerId);
+            throw new ObjectNotFoundException(bookerId, "item");
         }
 
         if (!isValidTransition(booking.getStatus(), approved ? BookingStatus.APPROVED : BookingStatus.REJECTED)) {

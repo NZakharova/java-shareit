@@ -50,7 +50,7 @@ public class ItemService {
 
     int add(ItemDto item) {
         if (!userRepository.existsById(item.getUserId())) {
-            throw new ObjectNotFoundException(item.getUserId());
+            throw new ObjectNotFoundException(item.getUserId(), "user");
         }
 
         Item i = itemMapper.toModel(item);

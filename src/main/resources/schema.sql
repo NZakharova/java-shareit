@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     booker_id BIGINT REFERENCES users(id) NOT NULL,
     start_date DATETIME NOT NULL,
     end_date DATETIME NOT NULL,
-    status VARCHAR(10) NOT NULL
+    status SMALLINT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS comments (

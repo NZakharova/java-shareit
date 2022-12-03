@@ -24,6 +24,7 @@ public class Booking {
 
     @NotNull
     @Column(name = "status")
+    @Enumerated(EnumType.ORDINAL)
     private BookingStatus status;
 
     @Column(name = "booker_id")

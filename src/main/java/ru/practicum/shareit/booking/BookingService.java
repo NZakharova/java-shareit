@@ -50,7 +50,9 @@ public class BookingService {
 
     public BookingDto find(int id) {
         var booking = bookingRepository.findById(id).orElseThrow();
-        return mapper.toDto(booking);
+        var item = itemRepository.findById(booking.getItemId()).orElseThrow();
+        var booker = userRepository.findById(booking.getBookerId()).orElseThrow();
+        return mapper.toDto(booking, item, booker);
     }
 
     public List<BookingDto> find(int bookerId, BookingSearchKind searchKind) {
@@ -134,6 +136,13 @@ public class BookingService {
     }
 
     private List<BookingDto> toDto(List<Booking> bookings) {
-        return bookings.stream().map(mapper::toDto).collect(Collectors.toList());
+        return bookings
+                .stream()
+                .map(b -> {
+                    var item = itemRepository.findById(b.getItemId()).orElseThrow();
+                    var booker = userRepository.findById(b.getBookerId()).orElseThrow();
+                    return mapper.toDto(b, item, booker);
+                })
+                .collect(Collectors.toList());
     }
 }

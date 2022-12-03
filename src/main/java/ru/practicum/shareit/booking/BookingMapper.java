@@ -6,20 +6,16 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.CreateBookingRequest;
 import ru.practicum.shareit.booking.dto.ShortBookingDto;
 import ru.practicum.shareit.item.ItemMapper;
-import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserMapper;
-import ru.practicum.shareit.user.UserRepository;
 
 @Service
 @RequiredArgsConstructor
 public class BookingMapper {
-    private final ItemRepository itemRepository;
-    private final UserRepository userRepository;
     private final ItemMapper itemMapper;
 
-    public BookingDto toDto(Booking booking) {
-        var item = itemRepository.findById(booking.getItemId()).orElseThrow();
-        var booker = userRepository.findById(booking.getBookerId()).orElseThrow();
+    public BookingDto toDto(Booking booking, Item item, User booker) {
         return new BookingDto(booking.getId(),
                 booking.getBookerId(),
                 booking.getStartDate(),

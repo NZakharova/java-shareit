@@ -2,9 +2,11 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.Builder;
 import lombok.Data;
+import ru.practicum.shareit.booking.dto.ShortBookingDto;
 import ru.practicum.shareit.utils.Create;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 @Builder(toBuilder = true)
@@ -20,5 +22,10 @@ public class ItemDto {
 
     @NotNull(groups = Create.class)
     private final Boolean available;
-}
 
+    private List<CommentDto> comments;
+
+    private final ShortBookingDto lastBooking;
+
+    private final ShortBookingDto nextBooking;
+}

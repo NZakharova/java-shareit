@@ -1,26 +1,38 @@
 package ru.practicum.shareit.item;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Service
+@RequiredArgsConstructor
 public class ItemMapper {
+    private final CommentRepository commentRepository;
+    private final CommentMapper commentMapper;
 
-    public static ItemDto toDto(Item item) {
-        return ItemDto.builder()
+    public ItemDto toDto(Item item) {
+        var comments = commentRepository
+                .findByItemId(item.getId())
+                .stream()
+                .map(commentMapper::toDto)
+                .collect(Collectors.toList());
+
+        var builder = ItemDto.builder()
                 .id(item.getId())
                 .userId(item.getUserId())
                 .name(item.getName())
                 .description(item.getDescription())
-                .available(item.isAvailable())
-                .build();
+                .comments(comments)
+                .available(item.isAvailable());
+
+        return builder.build();
     }
 
-    public static Item toModel(ItemDto item) {
+    public Item toModel(ItemDto item) {
         return new Item(
                 Optional.ofNullable(item.getId()).orElse(0),
                 item.getUserId(),
@@ -30,3 +42,4 @@ public class ItemMapper {
         );
     }
 }
+

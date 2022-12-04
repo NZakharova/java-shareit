@@ -20,32 +20,32 @@ public class BookingController {
         log.info("Создание брони пользователем " + bookerId + ": " + dto);
         int id = bookingService.create(bookerId, dto);
         log.info("Создана бронь " + id);
-        return bookingService.find(bookerId, id);
+        return bookingService.get(bookerId, id);
     }
 
     @GetMapping("/bookings/owner")
     public List<BookingDto> findMineItems(@RequestHeader("X-Sharer-User-Id") int ownerId, @RequestParam Optional<String> state) {
         log.info("Запрос брони пользователя " + ownerId + " со статусом " + state.orElse("<null>"));
-        return bookingService.findOwned(ownerId, parseSearchKind(state));
+        return bookingService.getOwned(ownerId, parseSearchKind(state));
     }
 
     @GetMapping("/bookings")
     public List<BookingDto> findByState(@RequestHeader("X-Sharer-User-Id") int bookerId, @RequestParam Optional<String> state) {
         log.info("Запрос брони пользователем " + bookerId + " со статусом " + state.orElse("<null>"));
-        return bookingService.find(bookerId, parseSearchKind(state));
+        return bookingService.get(bookerId, parseSearchKind(state));
     }
 
     @GetMapping("/bookings/{bookingId}")
     public BookingDto find(@RequestHeader("X-Sharer-User-Id") int bookerId, @PathVariable int bookingId) {
         log.info("Запрос брони " + bookingId + " пользователем " + bookerId);
-        return bookingService.find(bookerId, bookingId);
+        return bookingService.get(bookerId, bookingId);
     }
 
     @PatchMapping("/bookings/{bookingId}")
     public BookingDto setApproved(@RequestHeader("X-Sharer-User-Id") int bookerId, @PathVariable int bookingId, @RequestParam boolean approved) {
         log.info("Изменяется статус брони " + bookingId + " пользователем " + bookerId + ": " + approved);
         bookingService.setApproved(bookerId, bookingId, approved);
-        return bookingService.find(bookingId);
+        return bookingService.get(bookingId);
     }
 
     private static BookingSearchKind parseSearchKind(Optional<String> state) {

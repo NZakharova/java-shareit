@@ -19,11 +19,11 @@ public class UserService {
         return userRepository.save(userModel).getId();
     }
 
-    public UserDto find(int id) {
+    public UserDto get(int id) {
         return UserMapper.toDto(userRepository.findById(id).orElseThrow());
     }
 
-    public List<UserDto> findAll() {
+    public List<UserDto> getAll() {
         return userRepository.findAll().stream().map(UserMapper::toDto).collect(Collectors.toList());
     }
 

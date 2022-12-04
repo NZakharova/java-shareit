@@ -25,8 +25,8 @@ public class BookingService {
     public int create(int bookerId, CreateBookingRequest dto) {
         bookingValidator.validate(dto);
 
-        userService.find(bookerId);
-        if (itemService.find(dto.getItemId()).getUserId() == bookerId) {
+        userService.get(bookerId);
+        if (itemService.get(dto.getItemId()).getUserId() == bookerId) {
             // нельзя забронировать свой предмет
             throw new ObjectNotFoundException(dto.getItemId(), "item");
         }
@@ -36,8 +36,8 @@ public class BookingService {
         return booking.getId();
     }
 
-    public BookingDto find(int bookerId, int id) {
-        var booking = find(id);
+    public BookingDto get(int bookerId, int id) {
+        var booking = get(id);
         // бронь доступна только владельцу или бронируещему
         if (booking.getBooker().getId() != bookerId && booking.getItem().getUserId() != bookerId) {
             throw new ObjectNotFoundException(id, "booking");
@@ -45,16 +45,16 @@ public class BookingService {
         return booking;
     }
 
-    public BookingDto find(int id) {
+    public BookingDto get(int id) {
         var booking = bookingRepository.findById(id).orElseThrow();
-        var item = itemService.find(booking.getItemId());
-        var booker = userService.find(booking.getBookerId());
+        var item = itemService.get(booking.getItemId());
+        var booker = userService.get(booking.getBookerId());
 
         return mapper.toDto(booking, item, booker);
     }
 
-    public List<BookingDto> find(int bookerId, BookingSearchKind searchKind) {
-        userService.find(bookerId);
+    public List<BookingDto> get(int bookerId, BookingSearchKind searchKind) {
+        userService.get(bookerId);
 
         switch (searchKind) {
             case ALL:
@@ -75,8 +75,8 @@ public class BookingService {
         }
     }
 
-    public List<BookingDto> findOwned(int ownerId, BookingSearchKind searchKind) {
-        userService.find(ownerId);
+    public List<BookingDto> getOwned(int ownerId, BookingSearchKind searchKind) {
+        userService.get(ownerId);
 
         switch (searchKind) {
             case CURRENT:
@@ -98,7 +98,7 @@ public class BookingService {
 
     public void setApproved(int bookerId, int bookingId, boolean approved) {
         var booking = bookingRepository.findById(bookingId).orElseThrow();
-        var item = itemService.find(booking.getItemId());
+        var item = itemService.get(booking.getItemId());
         if (item.getUserId() != bookerId) {
             throw new ObjectNotFoundException(bookerId, "item");
         }
@@ -130,8 +130,8 @@ public class BookingService {
         return bookings
                 .stream()
                 .map(b -> {
-                    var item = itemService.find(b.getItemId());
-                    var booker = userService.find(b.getBookerId());
+                    var item = itemService.get(b.getItemId());
+                    var booker = userService.get(b.getBookerId());
                     return mapper.toDto(b, item, booker);
                 })
                 .collect(Collectors.toList());

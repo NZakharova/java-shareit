@@ -31,16 +31,16 @@ public class ItemService {
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
 
-    public ItemDto find(int id) {
+    public ItemDto get(int id) {
         return itemMapper.toDto(itemStorage.findById(id).orElseThrow());
     }
 
-    public ItemDto find(int id, int userId) {
-        var dto = find(id);
+    public ItemDto get(int id, int userId) {
+        var dto = get(id);
         return addBookings(dto, userId);
     }
 
-    public List<ItemDto> findAll(int userId) {
+    public List<ItemDto> getAll(int userId) {
         return itemStorage.findByUserId(userId).stream().map(itemMapper::toDto).map(x -> addBookings(x, userId)).collect(Collectors.toList());
     }
 
@@ -96,7 +96,7 @@ public class ItemService {
 
     public int addComment(int userId, int itemId, CommentDto comment) {
         // проверим что предмет существует
-        find(itemId);
+        get(itemId);
 
         var bookings = bookingRepository.findByBookerIdAndItemId(userId, itemId);
         var now = LocalDateTime.now();

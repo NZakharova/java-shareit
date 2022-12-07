@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.CreateBookingRequest;
+import ru.practicum.shareit.utils.PaginationUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,15 +25,15 @@ public class BookingController {
     }
 
     @GetMapping("/bookings/owner")
-    public List<BookingDto> findMineItems(@RequestHeader("X-Sharer-User-Id") int ownerId, @RequestParam Optional<String> state) {
+    public List<BookingDto> findMineItems(@RequestHeader("X-Sharer-User-Id") int ownerId, @RequestParam Optional<String> state, @RequestParam Optional<Integer> from, @RequestParam Optional<Integer> size) {
         log.info("Запрос брони пользователя " + ownerId + " со статусом " + state.orElse("<null>"));
-        return bookingService.getOwned(ownerId, parseSearchKind(state));
+        return bookingService.getAllOwned(ownerId, parseSearchKind(state), PaginationUtils.create(from, size));
     }
 
     @GetMapping("/bookings")
-    public List<BookingDto> findByState(@RequestHeader("X-Sharer-User-Id") int bookerId, @RequestParam Optional<String> state) {
+    public List<BookingDto> findByState(@RequestHeader("X-Sharer-User-Id") int bookerId, @RequestParam Optional<String> state, @RequestParam Optional<Integer> from, @RequestParam Optional<Integer> size) {
         log.info("Запрос брони пользователем " + bookerId + " со статусом " + state.orElse("<null>"));
-        return bookingService.get(bookerId, parseSearchKind(state));
+        return bookingService.getAll(bookerId, parseSearchKind(state), PaginationUtils.create(from, size));
     }
 
     @GetMapping("/bookings/{bookingId}")

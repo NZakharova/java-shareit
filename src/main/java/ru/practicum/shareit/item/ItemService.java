@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -24,7 +26,7 @@ import java.util.stream.Stream;
 public class ItemService {
     private final ItemValidator itemValidator;
     private final ItemDtoValidator itemDtoValidator;
-    private final ItemRepository itemStorage;
+    private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final ItemMapper itemMapper;
     private final BookingRepository bookingRepository;
@@ -32,7 +34,7 @@ public class ItemService {
     private final CommentMapper commentMapper;
 
     public ItemDto get(int id) {
-        return itemMapper.toDto(itemStorage.findById(id).orElseThrow());
+        return itemMapper.toDto(itemRepository.findById(id).orElseThrow());
     }
 
     public ItemDto get(int id, int userId) {
@@ -40,12 +42,12 @@ public class ItemService {
         return addBookings(dto, userId);
     }
 
-    public List<ItemDto> getAll(int userId) {
-        return itemStorage.findByUserId(userId).stream().map(itemMapper::toDto).map(x -> addBookings(x, userId)).collect(Collectors.toList());
+    public List<ItemDto> getAll(int userId, Pageable pageable) {
+        return itemRepository.findByUserId(userId, pageable).stream().map(itemMapper::toDto).map(x -> addBookings(x, userId)).collect(Collectors.toList());
     }
 
     public List<ItemDto> getForRequest(int requestId) {
-        return toDto(itemStorage.findByRequestId(requestId));
+        return toDto(itemRepository.findByRequestId(requestId, Pageable.unpaged()));
     }
 
     public int add(ItemDto item) {
@@ -55,13 +57,13 @@ public class ItemService {
 
         Item i = itemMapper.toModel(item);
         itemValidator.validate(i);
-        return itemStorage.save(i).getId();
+        return itemRepository.save(i).getId();
     }
 
     public void update(ItemDto item) {
         itemDtoValidator.validateForUpdate(item);
 
-        var existing = itemStorage
+        var existing = itemRepository
                 .findById(item.getId())
                 .orElseThrow();
 
@@ -81,19 +83,19 @@ public class ItemService {
             existing.setAvailable(item.getAvailable());
         }
 
-        itemStorage.save(existing);
+        itemRepository.save(existing);
     }
 
     public void delete(int id) {
-        itemStorage.deleteById(id);
+        itemRepository.deleteById(id);
     }
 
-    public List<ItemDto> search(String text) {
+    public List<ItemDto> search(String text, Pageable pageable) {
         if (text == null || text.isEmpty()) {
             return Collections.emptyList();
         } else {
-            var list1 = itemStorage.findByNameContainingIgnoreCaseAndAvailable(text, true).stream();
-            var list2 = itemStorage.findByDescriptionContainingIgnoreCaseAndAvailable(text, true).stream();
+            var list1 = itemRepository.findByNameContainingIgnoreCaseAndAvailable(text, true, pageable).stream();
+            var list2 = itemRepository.findByDescriptionContainingIgnoreCaseAndAvailable(text, true, pageable).stream();
             return Stream.concat(list1, list2).distinct().map(itemMapper::toDto).collect(Collectors.toList());
         }
     }
@@ -102,7 +104,7 @@ public class ItemService {
         // проверим что предмет существует
         get(itemId);
 
-        var bookings = bookingRepository.findByBookerIdAndItemId(userId, itemId);
+        var bookings = bookingRepository.findByBookerIdAndItemId(userId, itemId, Pageable.unpaged());
         var now = LocalDateTime.now();
         if (bookings.stream().noneMatch(b -> b.getStatus() == BookingStatus.APPROVED && b.getStartDate().isBefore(now))) {
             // можно оставлять комментарии только для арендованных предметов
@@ -137,7 +139,7 @@ public class ItemService {
         return dto;
     }
 
-    private List<ItemDto> toDto(List<Item> items) {
-        return items.stream().map(itemMapper::toDto).collect(Collectors.toList());
+    private List<ItemDto> toDto(Page<Item> items) {
+        return items.map(itemMapper::toDto).stream().collect(Collectors.toList());
     }
 }

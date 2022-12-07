@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.CreateBookingRequest;
@@ -53,44 +55,44 @@ public class BookingService {
         return mapper.toDto(booking, item, booker);
     }
 
-    public List<BookingDto> get(int bookerId, BookingSearchKind searchKind) {
+    public List<BookingDto> getAll(int bookerId, BookingSearchKind searchKind, Pageable pageable) {
         userService.get(bookerId);
 
         switch (searchKind) {
             case ALL:
-                return toDto(bookingRepository.findByBookerIdOrderByStartDateDesc(bookerId));
+                return toDto(bookingRepository.findByBookerIdOrderByStartDateDesc(bookerId, pageable));
             case CURRENT:
                 var now = LocalDateTime.now();
-                return toDto(bookingRepository.findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(bookerId, now, now));
+                return toDto(bookingRepository.findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(bookerId, now, now, pageable));
             case PAST:
-                return toDto(bookingRepository.findByBookerIdAndEndDateBeforeOrderByStartDateDesc(bookerId, LocalDateTime.now()));
+                return toDto(bookingRepository.findByBookerIdAndEndDateBeforeOrderByStartDateDesc(bookerId, LocalDateTime.now(), pageable));
             case FUTURE:
-                return toDto(bookingRepository.findByBookerIdAndStartDateAfterOrderByStartDateDesc(bookerId, LocalDateTime.now()));
+                return toDto(bookingRepository.findByBookerIdAndStartDateAfterOrderByStartDateDesc(bookerId, LocalDateTime.now(), pageable));
             case WAITING:
-                return toDto(bookingRepository.findByBookerIdAndStatusOrderByStartDateDesc(bookerId, BookingStatus.WAITING));
+                return toDto(bookingRepository.findByBookerIdAndStatusOrderByStartDateDesc(bookerId, BookingStatus.WAITING, pageable));
             case REJECTED:
-                return toDto(bookingRepository.findByBookerIdAndStatusOrderByStartDateDesc(bookerId, BookingStatus.REJECTED));
+                return toDto(bookingRepository.findByBookerIdAndStatusOrderByStartDateDesc(bookerId, BookingStatus.REJECTED, pageable));
             default:
                 throw new UnsupportedOperationException("Неизвестный критерий поиска: " + searchKind);
         }
     }
 
-    public List<BookingDto> getOwned(int ownerId, BookingSearchKind searchKind) {
+    public List<BookingDto> getAllOwned(int ownerId, BookingSearchKind searchKind, Pageable pageable) {
         userService.get(ownerId);
 
         switch (searchKind) {
             case CURRENT:
-                return toDto(bookingRepository.findCurrentByOwnerIdOrderByStartDateDesc(ownerId, LocalDateTime.now()));
+                return toDto(bookingRepository.findCurrentByOwnerIdOrderByStartDateDesc(ownerId, LocalDateTime.now(), pageable));
             case PAST:
-                return toDto(bookingRepository.findPastByOwnerIdOrderByStartDateDesc(ownerId, LocalDateTime.now()));
+                return toDto(bookingRepository.findPastByOwnerIdOrderByStartDateDesc(ownerId, LocalDateTime.now(), pageable));
             case FUTURE:
-                return toDto(bookingRepository.findFutureByOwnerIdOrderByStartDateDesc(ownerId, LocalDateTime.now()));
+                return toDto(bookingRepository.findFutureByOwnerIdOrderByStartDateDesc(ownerId, LocalDateTime.now(), pageable));
             case ALL:
-                return toDto(bookingRepository.findByOwnerIdOrderByStartDateDesc(ownerId));
+                return toDto(bookingRepository.findByOwnerIdOrderByStartDateDesc(ownerId, pageable));
             case WAITING:
-                return toDto(bookingRepository.findByOwnerIdAndStatusOrderByStartDateDesc(ownerId, BookingStatus.WAITING));
+                return toDto(bookingRepository.findByOwnerIdAndStatusOrderByStartDateDesc(ownerId, BookingStatus.WAITING, pageable));
             case REJECTED:
-                return toDto(bookingRepository.findByOwnerIdAndStatusOrderByStartDateDesc(ownerId, BookingStatus.REJECTED));
+                return toDto(bookingRepository.findByOwnerIdAndStatusOrderByStartDateDesc(ownerId, BookingStatus.REJECTED, pageable));
             default:
                 throw new UnsupportedOperationException("Not implemented");
         }
@@ -126,14 +128,14 @@ public class BookingService {
         }
     }
 
-    private List<BookingDto> toDto(List<Booking> bookings) {
+    private List<BookingDto> toDto(Page<Booking> bookings) {
         return bookings
-                .stream()
                 .map(b -> {
                     var item = itemService.get(b.getItemId());
                     var booker = userService.get(b.getBookerId());
                     return mapper.toDto(b, item, booker);
                 })
+                .stream()
                 .collect(Collectors.toList());
     }
 }

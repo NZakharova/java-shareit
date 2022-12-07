@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.utils.Create;
+import ru.practicum.shareit.utils.PaginationUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -23,9 +25,9 @@ public class ItemController {
     }
 
     @GetMapping("/items")
-    public List<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") int userId) {
+    public List<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") int userId, @RequestParam Optional<Integer> from, @RequestParam Optional<Integer> size) {
         log.info("Запрос предметов пользователем " + userId);
-        return service.getAll(userId);
+        return service.getAll(userId, PaginationUtils.create(from, size));
     }
 
     @PostMapping("/items")
@@ -63,8 +65,8 @@ public class ItemController {
     }
 
     @GetMapping("/items/search")
-    public List<ItemDto> search(@RequestParam String text) {
+    public List<ItemDto> search(@RequestParam String text, @RequestParam Optional<Integer> from, @RequestParam Optional<Integer> size) {
         log.info("Поиск предмета по тексту: " + text);
-        return service.search(text);
+        return service.search(text, PaginationUtils.create(from, size));
     }
 }

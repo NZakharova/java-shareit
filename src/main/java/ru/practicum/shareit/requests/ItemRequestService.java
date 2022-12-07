@@ -1,7 +1,8 @@
 package ru.practicum.shareit.requests;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
@@ -37,26 +38,18 @@ public class ItemRequestService {
         return get(id);
     }
 
-    public List<ItemRequestDto> getAllForUser(int userId) {
+    public List<ItemRequestDto> getAllForUser(int userId, Pageable pageable) {
         userService.get(userId);
-        return toDto(itemRequestRepository.findByAuthorIdOrderByCreatedDesc(userId));
+        return toDto(itemRequestRepository.findByAuthorIdOrderByCreatedDesc(userId, pageable));
     }
 
-    public List<ItemRequestDto> getAll(int userId, int from, int size) {
-        if (from < 0) {
-            throw new IllegalArgumentException("Параметр 'from' должен быть больше либо равен нулю");
-        }
-
-        if (size <= 0) {
-            throw new IllegalArgumentException("Параметр 'size' должен быть больше нуля");
-        }
-
-        var page = itemRequestRepository.findAll(PageRequest.of(from / size, size));
+    public List<ItemRequestDto> getAll(int userId, Pageable pageable) {
+        var page = itemRequestRepository.findByAuthorIdNotOrderByCreatedDesc(userId, pageable);
         return page.map(this::toDto).toList();
     }
 
-    private List<ItemRequestDto> toDto(List<ItemRequest> requests) {
-        return requests.stream().map(this::toDto).collect(Collectors.toList());
+    private List<ItemRequestDto> toDto(Page<ItemRequest> requests) {
+        return requests.map(this::toDto).stream().collect(Collectors.toList());
     }
 
     private ItemRequestDto toDto(ItemRequest request) {

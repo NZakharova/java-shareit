@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
+import ru.practicum.shareit.utils.PaginationUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +24,7 @@ public class ItemRequestController {
 
     @GetMapping("/requests/all")
     public List<ItemRequestDto> getAllRequests(@RequestHeader("X-Sharer-User-Id") int userId, @RequestParam Optional<Integer> from, @RequestParam Optional<Integer> size) {
-        return itemRequestService.getAll(userId, from.orElse(0), size.orElse(Integer.MAX_VALUE));
+        return itemRequestService.getAll(userId, PaginationUtils.create(from, size));
     }
 
     @GetMapping("/requests/{id}")
@@ -32,7 +33,7 @@ public class ItemRequestController {
     }
 
     @GetMapping("/requests")
-    public List<ItemRequestDto> getRequests(@RequestHeader("X-Sharer-User-Id") int userId) {
-        return itemRequestService.getAllForUser(userId);
+    public List<ItemRequestDto> getRequests(@RequestHeader("X-Sharer-User-Id") int userId, @RequestParam Optional<Integer> from, @RequestParam Optional<Integer> size) {
+        return itemRequestService.getAllForUser(userId, PaginationUtils.create(from, size));
     }
 }

@@ -1,55 +1,56 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
-    List<Booking> findByBookerIdOrderByStartDateDesc(int bookerId);
+    Page<Booking> findByBookerIdOrderByStartDateDesc(int bookerId, Pageable pageable);
 
-    List<Booking> findByBookerIdAndStatusOrderByStartDateDesc(int bookerId, BookingStatus status);
+    Page<Booking> findByBookerIdAndStatusOrderByStartDateDesc(int bookerId, BookingStatus status, Pageable pageable);
 
-    List<Booking> findByBookerIdAndStartDateAfterOrderByStartDateDesc(int bookerId, LocalDateTime date);
+    Page<Booking> findByBookerIdAndStartDateAfterOrderByStartDateDesc(int bookerId, LocalDateTime date, Pageable pageable);
 
-    List<Booking> findByBookerIdAndEndDateBeforeOrderByStartDateDesc(int bookerId, LocalDateTime date);
+    Page<Booking> findByBookerIdAndEndDateBeforeOrderByStartDateDesc(int bookerId, LocalDateTime date, Pageable pageable);
 
-    List<Booking> findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(int bookerId, LocalDateTime date, LocalDateTime date2);
+    Page<Booking> findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(int bookerId, LocalDateTime date, LocalDateTime date2, Pageable pageable);
 
     @Query("SELECT b FROM Booking b " +
             "INNER JOIN Item i ON i.id = b.itemId AND i.userId = ?1 " +
             "WHERE b.status = ?2 " +
             "ORDER BY b.startDate DESC")
-    List<Booking> findByOwnerIdAndStatusOrderByStartDateDesc(int ownerId, BookingStatus status);
+    Page<Booking> findByOwnerIdAndStatusOrderByStartDateDesc(int ownerId, BookingStatus status, Pageable pageable);
 
     @Query("SELECT b FROM Booking b " +
             "INNER JOIN Item i on i.id = b.itemId AND i.userId = ?1 " +
             "WHERE b.endDate < ?2 " +
             "ORDER BY b.startDate DESC")
-    List<Booking> findPastByOwnerIdOrderByStartDateDesc(int ownerId, LocalDateTime date);
+    Page<Booking> findPastByOwnerIdOrderByStartDateDesc(int ownerId, LocalDateTime date, Pageable pageable);
 
     @Query("SELECT b FROM Booking b " +
             "INNER JOIN Item i on i.id = b.itemId AND i.userId = ?1 " +
             "WHERE b.startDate > ?2 " +
             "ORDER BY b.startDate DESC")
-    List<Booking> findFutureByOwnerIdOrderByStartDateDesc(int ownerId, LocalDateTime date);
+    Page<Booking> findFutureByOwnerIdOrderByStartDateDesc(int ownerId, LocalDateTime date, Pageable pageable);
 
 
     @Query("SELECT b FROM Booking b " +
             "INNER JOIN Item i on i.id = b.itemId AND i.userId = ?1 " +
             "WHERE b.startDate < ?2 AND b.endDate > ?2" +
             "ORDER BY b.startDate DESC")
-    List<Booking> findCurrentByOwnerIdOrderByStartDateDesc(int ownerId, LocalDateTime date);
+    Page<Booking> findCurrentByOwnerIdOrderByStartDateDesc(int ownerId, LocalDateTime date, Pageable pageable);
 
     @Query("SELECT b FROM Booking b " +
             "INNER JOIN Item i on i.id = b.itemId AND i.userId = ?1 " +
             "ORDER BY b.startDate DESC")
-    List<Booking> findByOwnerIdOrderByStartDateDesc(int ownerId);
+    Page<Booking> findByOwnerIdOrderByStartDateDesc(int ownerId, Pageable pageable);
 
     Booking findFirstByItemIdAndEndDateBeforeOrderByStartDateDesc(int itemId, LocalDateTime date);
 
     Booking findFirstByItemIdAndEndDateAfterOrderByStartDateAsc(int itemId, LocalDateTime date);
 
-    List<Booking> findByBookerIdAndItemId(int bookerId, int itemId);
+    Page<Booking> findByBookerIdAndItemId(int bookerId, int itemId, Pageable pageable);
 }

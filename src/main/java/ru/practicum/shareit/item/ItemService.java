@@ -44,6 +44,10 @@ public class ItemService {
         return itemStorage.findByUserId(userId).stream().map(itemMapper::toDto).map(x -> addBookings(x, userId)).collect(Collectors.toList());
     }
 
+    public List<ItemDto> getForRequest(int requestId) {
+        return toDto(itemStorage.findByRequestId(requestId));
+    }
+
     public int add(ItemDto item) {
         if (!userRepository.existsById(item.getUserId())) {
             throw new ObjectNotFoundException(item.getUserId(), "user");
@@ -131,5 +135,9 @@ public class ItemService {
         }
 
         return dto;
+    }
+
+    private List<ItemDto> toDto(List<Item> items) {
+        return items.stream().map(itemMapper::toDto).collect(Collectors.toList());
     }
 }

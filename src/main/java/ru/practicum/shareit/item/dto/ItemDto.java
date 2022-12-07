@@ -28,4 +28,6 @@ public class ItemDto {
     private final ShortBookingDto lastBooking;
 
     private final ShortBookingDto nextBooking;
+
+    private Integer requestId;
 }

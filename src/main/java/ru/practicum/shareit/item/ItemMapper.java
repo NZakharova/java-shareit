@@ -27,6 +27,7 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .comments(comments)
+                .requestId(item.getRequestId())
                 .available(item.isAvailable());
 
         return builder.build();
@@ -38,7 +39,8 @@ public class ItemMapper {
                 item.getUserId(),
                 item.getName(),
                 item.getDescription(),
-                item.getAvailable()
+                item.getAvailable(),
+                item.getRequestId()
         );
     }
 }

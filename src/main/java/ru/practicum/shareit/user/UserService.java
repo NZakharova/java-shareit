@@ -1,55 +1,15 @@
 package ru.practicum.shareit.user;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Service
-@RequiredArgsConstructor
-public class UserService {
-    private final UserValidator userValidator;
-    private final UserDtoValidator userDtoValidator;
-    private final UserRepository userRepository;
+public interface UserService {
+    int add(UserDto user);
 
-    public int add(UserDto user) {
-        var userModel = convertAndValidate(user);
+    UserDto get(int id);
 
-        return userRepository.save(userModel).getId();
-    }
+    List<UserDto> getAll();
 
-    public UserDto get(int id) {
-        return UserMapper.toDto(userRepository.findById(id).orElseThrow());
-    }
+    void update(UserDto dto);
 
-    public List<UserDto> getAll() {
-        return userRepository.findAll().stream().map(UserMapper::toDto).collect(Collectors.toList());
-    }
-
-    public void update(UserDto dto) {
-        userDtoValidator.validateForUpdate(dto);
-
-        var existing = userRepository.findById(dto.getId()).orElseThrow();
-
-        if (dto.getEmail() != null) {
-            existing.setEmail(dto.getEmail());
-        }
-
-        if (dto.getName() != null) {
-            existing.setName(dto.getName());
-        }
-
-        userRepository.save(existing);
-    }
-
-    public void delete(int id) {
-        userRepository.deleteById(id);
-    }
-
-    private User convertAndValidate(UserDto dto) {
-        var model = UserMapper.toModel(dto);
-        userValidator.validate(model);
-        return model;
-    }
+    void delete(int id);
 }

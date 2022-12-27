@@ -11,9 +11,8 @@ import ru.practicum.shareit.booking.ItemUnavailableException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.utils.InvalidObjectException;
-import ru.practicum.shareit.utils.ObjectNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -27,7 +26,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemValidator itemValidator;
     private final ItemDtoValidator itemDtoValidator;
     private final ItemRepository itemRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final ItemMapper itemMapper;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
@@ -56,9 +55,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public int add(ItemDto item) {
-        if (!userRepository.existsById(item.getUserId())) {
-            throw new ObjectNotFoundException(item.getUserId(), "user");
-        }
+        userService.get(item.getUserId());
 
         Item i = itemMapper.toModel(item);
         itemValidator.validate(i);
@@ -120,7 +117,7 @@ public class ItemServiceImpl implements ItemService {
             throw new ItemUnavailableException();
         }
 
-        var c = commentMapper.toModel(comment, itemId, userId, LocalDateTime.now());
+        var c = commentMapper.toModel(comment, itemId, userId, now);
         return commentRepository.save(c).getId();
     }
 

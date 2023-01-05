@@ -9,10 +9,14 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import ru.practicum.shareit.booking.*;
+import ru.practicum.shareit.item.CommentRepository;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.ItemService;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserDto;
@@ -20,9 +24,8 @@ import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.utils.InvalidObjectException;
 import ru.practicum.shareit.utils.ValidationException;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,28 +33,53 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 class ItemServiceTests {
     @Autowired
-    private ItemService itemService;
+    ItemService itemService;
 
     @MockBean
-    private ItemRepository itemRepository;
+    ItemRepository itemRepository;
 
     @MockBean
-    private UserService userService;
+    UserService userService;
+
+    @MockBean
+    BookingRepository bookingRepository;
+
+    @MockBean
+    CommentRepository commentRepository;
 
     @BeforeEach
     void setup() {
         addUsers();
         addItems();
+        addBookings();
     }
 
-    private void addUsers() {
+    void addBookings() {
+        var startDateAfterNow = LocalDateTime.now().plusHours(1);
+        var endDateAfterNow = startDateAfterNow.plusHours(1);
+
+        var bookingAfter = new Booking(1, 1, BookingStatus.APPROVED, 2, startDateAfterNow, endDateAfterNow);
+
+        Mockito.when(bookingRepository.findByBookerIdAndItemId(Mockito.eq(1), Mockito.eq(1), Mockito.any()))
+                .thenReturn(new PageImpl<>(List.of(bookingAfter)));
+
+        var startDateBeforeNow = LocalDateTime.now().minusHours(2);
+        var endDateBeforeNow = startDateBeforeNow.plusHours(1);
+
+        var bookingBefore = new Booking(2, 2, BookingStatus.APPROVED, 2, startDateBeforeNow, endDateBeforeNow);
+
+        Mockito.when(bookingRepository.findByBookerIdAndItemId(Mockito.eq(1), Mockito.eq(2), Mockito.any()))
+                .thenReturn(new PageImpl<>(List.of(bookingBefore)));
+    }
+
+    void addUsers() {
         for (int i = 0; i < 3; i++) {
             Mockito.when(userService.get(i))
                     .thenReturn(UserDto.builder().id(i).build());
         }
     }
 
-    private void addItems() {
+    void addItems() {
         var items = List.of(
                 new Item(1, 1, "pen", "black", true, null),
                 new Item(2, 1, "ruler", "ruler, 32cm", true, null),
@@ -179,7 +207,41 @@ class ItemServiceTests {
         assertEquals(5, item.getId());
     }
 
-    private static ItemDto.ItemDtoBuilder getValidDto() {
+    @Test
+    void testCannotAddCommentForAbsentItem() {
+        var comment = CommentDto.builder().build();
+        assertThrows(NoSuchElementException.class, () -> itemService.addComment(1, 42, comment));
+    }
+
+    @Test
+    void testCannotAddCommentForNotRentedItem() {
+        var comment = CommentDto.builder().build();
+        assertThrows(ItemUnavailableException.class, () -> itemService.addComment(1, 1, comment));
+    }
+
+    @Test
+    void testCanAddComment() {
+        var comment = CommentDto.builder().text("some text").build();
+
+        Mockito.when(commentRepository.save(Mockito.any())).thenAnswer(i -> i.getArgument(0));
+
+        assertDoesNotThrow(() -> itemService.addComment(1, 2, comment));
+    }
+
+    @Test
+    void testBookingsAreAttachedToItem() {
+        Mockito.when(bookingRepository.findFirstByItemIdAndEndDateBeforeOrderByStartDateDesc(Mockito.eq(1), Mockito.any()))
+                .thenReturn(new Booking(1, 1, BookingStatus.APPROVED, 2, LocalDateTime.now(), LocalDateTime.now()));
+
+        Mockito.when(bookingRepository.findFirstByItemIdAndEndDateAfterOrderByStartDateAsc(Mockito.eq(1), Mockito.any()))
+                .thenReturn(new Booking(2, 1, BookingStatus.APPROVED, 2, LocalDateTime.now(), LocalDateTime.now()));
+
+        var item = itemService.get(1, 1);
+        assertEquals(1, item.getLastBooking().getId());
+        assertEquals(2, item.getNextBooking().getId());
+    }
+
+    static ItemDto.ItemDtoBuilder getValidDto() {
         return ItemDto
                 .builder()
                 .userId(1)

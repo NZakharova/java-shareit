@@ -1,6 +1,8 @@
 package ru.practicum.shareit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -16,6 +18,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class ControllerTestHelpers {
     private static final ObjectMapper mapper = new ObjectMapper();
+
+    static {
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    }
 
     public static void runTest(MockMvc mvc, MockHttpServletRequestBuilder requestBuilder, ResultMatcher... matchers) throws Exception {
         var actions = mvc.perform(requestBuilder);

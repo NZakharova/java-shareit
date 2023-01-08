@@ -19,12 +19,6 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     Page<Booking> findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(int bookerId, LocalDateTime date, LocalDateTime date2, Pageable pageable);
 
     @Query("SELECT b FROM Booking b " +
-            "INNER JOIN Item i ON i.id = b.itemId AND i.userId = ?1 " +
-            "WHERE b.status = ?2 " +
-            "ORDER BY b.startDate DESC")
-    Page<Booking> findByOwnerIdAndStatusOrderByStartDateDesc(int ownerId, BookingStatus status, Pageable pageable);
-
-    @Query("SELECT b FROM Booking b " +
             "INNER JOIN Item i on i.id = b.itemId AND i.userId = ?1 " +
             "WHERE b.endDate < ?2 " +
             "ORDER BY b.startDate DESC")
@@ -36,7 +30,6 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "ORDER BY b.startDate DESC")
     Page<Booking> findFutureByOwnerIdOrderByStartDateDesc(int ownerId, LocalDateTime date, Pageable pageable);
 
-
     @Query("SELECT b FROM Booking b " +
             "INNER JOIN Item i on i.id = b.itemId AND i.userId = ?1 " +
             "WHERE b.startDate < ?2 AND b.endDate > ?2" +
@@ -47,6 +40,12 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "INNER JOIN Item i on i.id = b.itemId AND i.userId = ?1 " +
             "ORDER BY b.startDate DESC")
     Page<Booking> findByOwnerIdOrderByStartDateDesc(int ownerId, Pageable pageable);
+
+    @Query("SELECT b FROM Booking b " +
+            "INNER JOIN Item i ON i.id = b.itemId AND i.userId = ?1 " +
+            "WHERE b.status = ?2 " +
+            "ORDER BY b.startDate DESC")
+    Page<Booking> findByOwnerIdAndStatusOrderByStartDateDesc(int ownerId, BookingStatus status, Pageable pageable);
 
     Booking findFirstByItemIdAndEndDateBeforeOrderByStartDateDesc(int itemId, LocalDateTime date);
 

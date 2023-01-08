@@ -1,4 +1,4 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.booking;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ru.practicum.shareit.ControllerTestHelpers;
 import ru.practicum.shareit.booking.*;
 import ru.practicum.shareit.booking.BookingController;
 import ru.practicum.shareit.booking.BookingService;

@@ -1,4 +1,4 @@
-package ru.practicum.shareit;
+package ru.practicum.shareit.item;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ru.practicum.shareit.ControllerTestHelpers;
 import ru.practicum.shareit.booking.dto.ShortBookingDto;
 import ru.practicum.shareit.item.ItemController;
 import ru.practicum.shareit.item.ItemService;

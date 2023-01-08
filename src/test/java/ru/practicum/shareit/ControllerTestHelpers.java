@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-class ControllerTestHelpers {
+public class ControllerTestHelpers {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     static {

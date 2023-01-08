@@ -104,10 +104,10 @@ class UserControllerTests {
 
     @Test
     void testDeleteUser() throws Exception {
-        runTest(mvc, deleteJson("/users/1", null));
+        runTest(mvc, deleteJson("/users/1"));
         verify(userService).delete(1);
 
-        runTest(mvc, deleteJson("/users/2", null));
+        runTest(mvc, deleteJson("/users/2"));
         verify(userService).delete(2);
     }
 }

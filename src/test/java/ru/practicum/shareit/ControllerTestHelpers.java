@@ -20,7 +20,7 @@ class ControllerTestHelpers {
     public static void runTest(MockMvc mvc, MockHttpServletRequestBuilder requestBuilder, ResultMatcher... matchers) throws Exception {
         var actions = mvc.perform(requestBuilder);
         for (var matcher : matchers) {
-           actions = actions.andExpect(matcher);
+            actions = actions.andExpect(matcher);
         }
     }
 
@@ -48,21 +48,19 @@ class ControllerTestHelpers {
                 .accept(MediaType.APPLICATION_JSON);
     }
 
-    public static MockHttpServletRequestBuilder deleteJson(String path, Object content) throws Exception {
-        var builder = delete(path)
+    public static MockHttpServletRequestBuilder deleteJson(String path) {
+        return delete(path)
                 .characterEncoding(StandardCharsets.UTF_8)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
-
-        if (content != null) {
-            return builder.content(mapper.writeValueAsString(content));
-        } else {
-            return builder;
-        }
     }
 
     public static <T> ResultMatcher j(String path, T value) {
         return jsonPath(path, is(value));
+    }
+
+    public static <T> ResultMatcher no(String path) {
+        return jsonPath(path).doesNotExist();
     }
 
     public static <T> Matcher<T> is(T value) {

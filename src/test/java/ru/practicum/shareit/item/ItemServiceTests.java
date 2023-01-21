@@ -17,8 +17,11 @@ import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.ItemUnavailableException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserDto;
+import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.utils.InvalidObjectException;
 import ru.practicum.shareit.utils.ValidationException;
@@ -47,6 +50,9 @@ class ItemServiceTests {
 
     @MockBean
     CommentRepository commentRepository;
+
+    @MockBean
+    UserRepository userRepository;
 
     @BeforeEach
     void setup() {
@@ -227,6 +233,27 @@ class ItemServiceTests {
         Mockito.when(commentRepository.save(Mockito.any())).thenAnswer(i -> i.getArgument(0));
 
         assertDoesNotThrow(() -> itemService.addComment(1, 2, comment));
+    }
+
+    @Test
+    void testFindComment() {
+        var time = LocalDateTime.now();
+        Mockito.when(commentRepository.findById(7))
+                .thenReturn(Optional.of(Comment.builder()
+                                .id(7)
+                                .itemId(2)
+                                .userId(3)
+                                .text("comment text")
+                                .time(time)
+                        .build()));
+
+        Mockito.when(userService.get(3)).thenReturn(UserDto.builder().id(3).name("a").build());
+
+        var dto = itemService.findComment(7);
+        assertEquals(7, dto.getId());
+        assertEquals("a", dto.getAuthorName());
+        assertEquals("comment text", dto.getText());
+        assertEquals(time, dto.getCreated());
     }
 
     @Test

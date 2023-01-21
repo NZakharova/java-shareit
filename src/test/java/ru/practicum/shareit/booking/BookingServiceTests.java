@@ -66,6 +66,12 @@ class BookingServiceTests {
         var startDate = LocalDateTime.now().plusHours(1);
         var endDate = startDate.plusHours(1);
 
+        Mockito.when(bookingRepository.save(Mockito.any())).thenAnswer(i -> {
+            var booking = (Booking) i.getArgument(0);
+            booking.setId(1);
+            return booking;
+        });
+
         bookingService.create(3, new CreateBookingRequest(1, startDate, endDate));
 
         Mockito.verify(bookingRepository, Mockito.times(1))
@@ -96,27 +102,27 @@ class BookingServiceTests {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "ALL", "CURRENT", "PAST", "FUTURE", "WAITING", "REJECTED" })
+    @ValueSource(strings = {"ALL", "CURRENT", "PAST", "FUTURE", "WAITING", "REJECTED"})
     void testSearch(String value) {
         var kind = BookingSearchKind.valueOf(value);
         var pageable = Pageable.unpaged();
 
         Mockito.when(bookingRepository.findByBookerIdOrderByStartDateDesc(Mockito.anyInt(), Mockito.any()))
-                        .thenReturn(Page.empty());
+                .thenReturn(Page.empty());
         Mockito.when(bookingRepository.findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(Mockito.anyInt(), Mockito.any(), Mockito.any(), Mockito.any()))
-                        .thenReturn(Page.empty());
+                .thenReturn(Page.empty());
         Mockito.when(bookingRepository.findByBookerIdAndEndDateBeforeOrderByStartDateDesc(Mockito.anyInt(), Mockito.any(), Mockito.any()))
-                        .thenReturn(Page.empty());
+                .thenReturn(Page.empty());
         Mockito.when(bookingRepository.findByBookerIdAndStartDateAfterOrderByStartDateDesc(Mockito.anyInt(), Mockito.any(), Mockito.any()))
-                        .thenReturn(Page.empty());
+                .thenReturn(Page.empty());
         Mockito.when(bookingRepository.findByBookerIdAndStatusOrderByStartDateDesc(Mockito.anyInt(), Mockito.any(), Mockito.any()))
-                        .thenReturn(Page.empty());
+                .thenReturn(Page.empty());
 
         assertDoesNotThrow(() -> bookingService.getAll(0, kind, pageable));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "ALL", "CURRENT", "PAST", "FUTURE", "WAITING", "REJECTED" })
+    @ValueSource(strings = {"ALL", "CURRENT", "PAST", "FUTURE", "WAITING", "REJECTED"})
     void testSearchForOwner(String value) {
         var kind = BookingSearchKind.valueOf(value);
         var pageable = Pageable.unpaged();

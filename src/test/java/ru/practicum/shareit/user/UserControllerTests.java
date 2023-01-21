@@ -9,9 +9,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import ru.practicum.shareit.user.UserController;
-import ru.practicum.shareit.user.UserDto;
-import ru.practicum.shareit.user.UserService;
 
 import java.util.List;
 
@@ -42,8 +39,7 @@ class UserControllerTests {
         when(userService.add(Mockito.any())).thenReturn(1);
         when(userService.get(1)).thenReturn(user.toBuilder().id(1).build());
 
-        runTest(mvc, postJson("/users", user), status().isOk()
-        );
+        runTest(mvc, postJson("/users", user), status().isOk());
     }
 
     @Test

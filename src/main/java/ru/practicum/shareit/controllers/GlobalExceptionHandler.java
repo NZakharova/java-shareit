@@ -7,7 +7,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.shareit.booking.ItemUnavailableException;
-import ru.practicum.shareit.utils.DuplicateObjectException;
 import ru.practicum.shareit.utils.InvalidObjectException;
 import ru.practicum.shareit.utils.ObjectNotFoundException;
 import ru.practicum.shareit.utils.ValidationException;
@@ -26,11 +25,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<String> handleNoSuchObject(NoSuchElementException exception) {
         return logWarn(exception.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<String> handleDuplicateObject(DuplicateObjectException exception) {
-        return logWarn(exception.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler

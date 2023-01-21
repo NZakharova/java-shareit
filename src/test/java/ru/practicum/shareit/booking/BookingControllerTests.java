@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.ControllerTestHelpers;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.CreateBookingRequest;
+import ru.practicum.shareit.controllers.GlobalExceptionHandler;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.time.LocalDateTime;
@@ -40,7 +41,7 @@ class BookingControllerTests {
 
     @BeforeEach
     void setup() {
-        mvc = MockMvcBuilders.standaloneSetup(bookingController).build();
+        mvc = MockMvcBuilders.standaloneSetup(bookingController).setControllerAdvice(new GlobalExceptionHandler()).build();
     }
 
     @Test
@@ -87,6 +88,11 @@ class BookingControllerTests {
                 .thenReturn(List.of());
 
         runTest(mvc, getJson("/bookings").param("state", searchKind), status().isOk());
+    }
+
+    @Test
+    void testSearchWithInvalidKind() throws Exception {
+        runTest(mvc, getJson("/bookings").param("state", "invalid kind"), status().is5xxServerError());
     }
 
     @Test

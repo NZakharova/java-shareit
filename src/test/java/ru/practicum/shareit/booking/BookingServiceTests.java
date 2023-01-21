@@ -2,14 +2,14 @@ package ru.practicum.shareit.booking;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.booking.BookingRepository;
-import ru.practicum.shareit.booking.BookingService;
-import ru.practicum.shareit.booking.BookingStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.dto.CreateBookingRequest;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -93,5 +93,44 @@ class BookingServiceTests {
     void testCannotApproveAlreadyApproved() {
         assertThrows(ValidationException.class, () -> bookingService.setApproved(1, 2, true));
         assertThrows(ValidationException.class, () -> bookingService.setApproved(1, 2, false));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "ALL", "CURRENT", "PAST", "FUTURE", "WAITING", "REJECTED" })
+    void testSearch(String value) {
+        var kind = BookingSearchKind.valueOf(value);
+        var pageable = Pageable.unpaged();
+
+        Mockito.when(bookingRepository.findByBookerIdOrderByStartDateDesc(Mockito.anyInt(), Mockito.any()))
+                        .thenReturn(Page.empty());
+        Mockito.when(bookingRepository.findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(Mockito.anyInt(), Mockito.any(), Mockito.any(), Mockito.any()))
+                        .thenReturn(Page.empty());
+        Mockito.when(bookingRepository.findByBookerIdAndEndDateBeforeOrderByStartDateDesc(Mockito.anyInt(), Mockito.any(), Mockito.any()))
+                        .thenReturn(Page.empty());
+        Mockito.when(bookingRepository.findByBookerIdAndStartDateAfterOrderByStartDateDesc(Mockito.anyInt(), Mockito.any(), Mockito.any()))
+                        .thenReturn(Page.empty());
+        Mockito.when(bookingRepository.findByBookerIdAndStatusOrderByStartDateDesc(Mockito.anyInt(), Mockito.any(), Mockito.any()))
+                        .thenReturn(Page.empty());
+
+        assertDoesNotThrow(() -> bookingService.getAll(0, kind, pageable));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "ALL", "CURRENT", "PAST", "FUTURE", "WAITING", "REJECTED" })
+    void testSearchForOwner(String value) {
+        var kind = BookingSearchKind.valueOf(value);
+        var pageable = Pageable.unpaged();
+
+        Mockito.when(bookingRepository.findByOwnerIdOrderByStartDateDesc(Mockito.anyInt(), Mockito.any()))
+                .thenReturn(Page.empty());
+        Mockito.when(bookingRepository.findCurrentByOwnerIdOrderByStartDateDesc(Mockito.anyInt(), Mockito.any(), Mockito.any()))
+                .thenReturn(Page.empty());
+        Mockito.when(bookingRepository.findPastByOwnerIdOrderByStartDateDesc(Mockito.anyInt(), Mockito.any(), Mockito.any()))
+                .thenReturn(Page.empty());
+        Mockito.when(bookingRepository.findFutureByOwnerIdOrderByStartDateDesc(Mockito.anyInt(), Mockito.any(), Mockito.any()))
+                .thenReturn(Page.empty());
+        Mockito.when(bookingRepository.findByOwnerIdAndStatusOrderByStartDateDesc(Mockito.anyInt(), Mockito.any(), Mockito.any()))
+                .thenReturn(Page.empty());
+        assertDoesNotThrow(() -> bookingService.getAllOwned(0, kind, pageable));
     }
 }

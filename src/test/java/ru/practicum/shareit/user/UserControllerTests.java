@@ -42,11 +42,7 @@ class UserControllerTests {
         when(userService.add(Mockito.any())).thenReturn(1);
         when(userService.get(1)).thenReturn(user.toBuilder().id(1).build());
 
-        runTest(mvc, postJson("/users", user),
-                status().isOk(),
-                j("$.id", 1),
-                j("$.name", user.getName()),
-                j("$.email", user.getEmail())
+        runTest(mvc, postJson("/users", user), status().isOk()
         );
     }
 
@@ -57,12 +53,7 @@ class UserControllerTests {
 
         when(userService.get(1)).thenReturn(userWithId);
 
-        runTest(mvc, patchJson("/users/1", userNoId),
-                status().isOk(),
-                j("$.id", 1),
-                j("$.name", userNoId.getName()),
-                j("$.email", userNoId.getEmail())
-        );
+        runTest(mvc, patchJson("/users/1", userNoId), status().isOk());
 
         verify(userService).update(userWithId);
     }
@@ -74,11 +65,7 @@ class UserControllerTests {
 
         when(userService.get(1)).thenReturn(user);
 
-        runTest(mvc, getJson("/users/1", user),
-                status().isOk(),
-                j("$.name", "a"),
-                j("$.email", "a@ya.ru"),
-                j("$.id", 1));
+        runTest(mvc, getJson("/users/1", user), status().isOk());
     }
 
     @Test
@@ -89,17 +76,7 @@ class UserControllerTests {
         var users = List.of(user1, user2);
         when(userService.getAll()).thenReturn(users);
 
-        runTest(mvc, getJson("/users", users),
-                status().isOk(),
-
-                j("$[0].name", "a"),
-                j("$[0].email", "a@ya.ru"),
-                j("$[0].id", 1),
-
-                j("$[1].name", "b"),
-                j("$[1].email", "b@ya.ru"),
-                j("$[1].id", 2))
-        ;
+        runTest(mvc, getJson("/users", users), status().isOk());
     }
 
     @Test

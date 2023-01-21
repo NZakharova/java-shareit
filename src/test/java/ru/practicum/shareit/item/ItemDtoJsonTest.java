@@ -22,7 +22,8 @@ class ItemDtoJsonTest {
 
     @Test
     void testItemSerialization() throws IOException {
-        var now = LocalDateTime.now();
+        var time = "2023-01-21T14:21:25.4480877";
+        var now = LocalDateTime.parse(time);
         var comments = List.of(new CommentDto("commentText", "author", now, 3));
         var item = new ItemDto(
                 1,
@@ -46,6 +47,7 @@ class ItemDtoJsonTest {
         assertThat(content).extractingJsonPathStringValue("$.comments[0].text").isEqualTo("commentText");
         assertThat(content).extractingJsonPathStringValue("$.comments[0].authorName").isEqualTo("author");
         assertThat(content).extractingJsonPathNumberValue("$.comments[0].id").isEqualTo(3);
+        assertThat(content).extractingJsonPathStringValue("$.comments[0].created").isEqualTo(time);
 
         assertThat(content).extractingJsonPathNumberValue("$.lastBooking.id").isEqualTo(4);
         assertThat(content).extractingJsonPathNumberValue("$.lastBooking.bookerId").isEqualTo(5);

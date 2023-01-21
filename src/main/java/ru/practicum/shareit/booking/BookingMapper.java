@@ -28,7 +28,7 @@ public class BookingMapper {
 
     public Booking toModel(CreateBookingRequest request, Integer requesterId) {
         return new Booking(
-                0, request.getItemId(), BookingStatus.WAITING, requesterId, request.getStart(), request.getEnd()
+                null, request.getItemId(), BookingStatus.WAITING, requesterId, request.getStart(), request.getEnd()
         );
     }
 }

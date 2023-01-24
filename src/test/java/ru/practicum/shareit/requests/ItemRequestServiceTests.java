@@ -9,8 +9,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
 import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.utils.DateUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +36,7 @@ class ItemRequestServiceTests {
                     return arg;
                 });
 
-        var dto = new ItemRequestDto(1, "desc", LocalDateTime.now(), 2, null);
+        var dto = new ItemRequestDto(1, "desc", DateUtils.now(), 2, null);
         service.add(0, dto);
 
         Mockito.verify(repository).save(Mockito.any());

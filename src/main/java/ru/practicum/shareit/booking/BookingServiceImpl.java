@@ -8,10 +8,10 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.CreateBookingRequest;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.utils.DateUtils;
 import ru.practicum.shareit.utils.ObjectNotFoundException;
 import ru.practicum.shareit.utils.ValidationException;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,12 +69,12 @@ public class BookingServiceImpl implements BookingService {
             case ALL:
                 return toDto(bookingRepository.findByBookerIdOrderByStartDateDesc(bookerId, pageable));
             case CURRENT:
-                var now = LocalDateTime.now();
+                var now = DateUtils.now();
                 return toDto(bookingRepository.findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(bookerId, now, now, pageable));
             case PAST:
-                return toDto(bookingRepository.findByBookerIdAndEndDateBeforeOrderByStartDateDesc(bookerId, LocalDateTime.now(), pageable));
+                return toDto(bookingRepository.findByBookerIdAndEndDateBeforeOrderByStartDateDesc(bookerId, DateUtils.now(), pageable));
             case FUTURE:
-                return toDto(bookingRepository.findByBookerIdAndStartDateAfterOrderByStartDateDesc(bookerId, LocalDateTime.now(), pageable));
+                return toDto(bookingRepository.findByBookerIdAndStartDateAfterOrderByStartDateDesc(bookerId, DateUtils.now(), pageable));
             case WAITING:
                 return toDto(bookingRepository.findByBookerIdAndStatusOrderByStartDateDesc(bookerId, BookingStatus.WAITING, pageable));
             case REJECTED:
@@ -90,11 +90,11 @@ public class BookingServiceImpl implements BookingService {
 
         switch (searchKind) {
             case CURRENT:
-                return toDto(bookingRepository.findCurrentByOwnerIdOrderByStartDateDesc(ownerId, LocalDateTime.now(), pageable));
+                return toDto(bookingRepository.findCurrentByOwnerIdOrderByStartDateDesc(ownerId, DateUtils.now(), pageable));
             case PAST:
-                return toDto(bookingRepository.findPastByOwnerIdOrderByStartDateDesc(ownerId, LocalDateTime.now(), pageable));
+                return toDto(bookingRepository.findPastByOwnerIdOrderByStartDateDesc(ownerId, DateUtils.now(), pageable));
             case FUTURE:
-                return toDto(bookingRepository.findFutureByOwnerIdOrderByStartDateDesc(ownerId, LocalDateTime.now(), pageable));
+                return toDto(bookingRepository.findFutureByOwnerIdOrderByStartDateDesc(ownerId, DateUtils.now(), pageable));
             case ALL:
                 return toDto(bookingRepository.findByOwnerIdOrderByStartDateDesc(ownerId, pageable));
             case WAITING:

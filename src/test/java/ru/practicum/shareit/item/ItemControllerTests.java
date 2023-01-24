@@ -15,8 +15,8 @@ import ru.practicum.shareit.ControllerTestHelpers;
 import ru.practicum.shareit.booking.dto.ShortBookingDto;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.utils.DateUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.Mockito.verify;
@@ -147,7 +147,7 @@ class ItemControllerTests {
         var fullComment = comment.toBuilder()
                 .id(commentId)
                 .authorName(authorName)
-                .created(LocalDateTime.now())
+                .created(DateUtils.now())
                 .build();
 
         when(itemService.addComment(Mockito.eq(SHARER_ID), Mockito.eq(itemId), Mockito.any()))

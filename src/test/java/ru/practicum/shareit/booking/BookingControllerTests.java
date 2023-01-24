@@ -17,8 +17,8 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.CreateBookingRequest;
 import ru.practicum.shareit.controllers.GlobalExceptionHandler;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.utils.DateUtils;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,7 +46,7 @@ class BookingControllerTests {
 
     @Test
     void testCreateBooking() throws Exception {
-        var startTime = LocalDateTime.now();
+        var startTime = DateUtils.now();
         var endTime = startTime.plusHours(1);
         var itemId = 1;
         var request = new CreateBookingRequest(itemId, startTime, endTime);

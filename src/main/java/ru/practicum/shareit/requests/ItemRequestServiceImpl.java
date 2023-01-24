@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
 import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.utils.DateUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,7 +24,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public int add(int userId, ItemRequestDto request) {
         userService.get(userId);
 
-        var model = mapper.toModel(request.getDescription(), userId, LocalDateTime.now());
+        var model = mapper.toModel(request.getDescription(), userId, DateUtils.now());
         itemRequestRepository.save(model);
         return model.getId();
     }

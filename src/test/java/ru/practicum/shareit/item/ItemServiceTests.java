@@ -22,10 +22,10 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserDto;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.utils.DateUtils;
 import ru.practicum.shareit.utils.InvalidObjectException;
 import ru.practicum.shareit.utils.ValidationException;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -61,7 +61,7 @@ class ItemServiceTests {
     }
 
     void addBookings() {
-        var startDateAfterNow = LocalDateTime.now().plusHours(1);
+        var startDateAfterNow = DateUtils.now().plusHours(1);
         var endDateAfterNow = startDateAfterNow.plusHours(1);
 
         var bookingAfter = new Booking(1, 1, BookingStatus.APPROVED, 2, startDateAfterNow, endDateAfterNow);
@@ -69,7 +69,7 @@ class ItemServiceTests {
         Mockito.when(bookingRepository.findByBookerIdAndItemId(Mockito.eq(1), Mockito.eq(1), Mockito.any()))
                 .thenReturn(new PageImpl<>(List.of(bookingAfter)));
 
-        var startDateBeforeNow = LocalDateTime.now().minusHours(2);
+        var startDateBeforeNow = DateUtils.now().minusHours(2);
         var endDateBeforeNow = startDateBeforeNow.plusHours(1);
 
         var bookingBefore = new Booking(2, 2, BookingStatus.APPROVED, 2, startDateBeforeNow, endDateBeforeNow);
@@ -236,7 +236,7 @@ class ItemServiceTests {
 
     @Test
     void testFindComment() {
-        var time = LocalDateTime.now();
+        var time = DateUtils.now();
         Mockito.when(commentRepository.findById(7))
                 .thenReturn(Optional.of(Comment.builder()
                                 .id(7)
@@ -258,10 +258,10 @@ class ItemServiceTests {
     @Test
     void testBookingsAreAttachedToItem() {
         Mockito.when(bookingRepository.findFirstByItemIdAndEndDateBeforeOrderByStartDateDesc(Mockito.eq(1), Mockito.any()))
-                .thenReturn(new Booking(1, 1, BookingStatus.APPROVED, 2, LocalDateTime.now(), LocalDateTime.now()));
+                .thenReturn(new Booking(1, 1, BookingStatus.APPROVED, 2, DateUtils.now(), DateUtils.now()));
 
         Mockito.when(bookingRepository.findFirstByItemIdAndEndDateAfterOrderByStartDateAsc(Mockito.eq(1), Mockito.any()))
-                .thenReturn(new Booking(2, 1, BookingStatus.APPROVED, 2, LocalDateTime.now(), LocalDateTime.now()));
+                .thenReturn(new Booking(2, 1, BookingStatus.APPROVED, 2, DateUtils.now(), DateUtils.now()));
 
         var item = itemService.get(1, 1);
         assertEquals(1, item.getLastBooking().getId());

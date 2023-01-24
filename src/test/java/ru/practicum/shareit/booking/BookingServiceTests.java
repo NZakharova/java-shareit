@@ -15,10 +15,10 @@ import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.UserDto;
 import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.utils.DateUtils;
 import ru.practicum.shareit.utils.ObjectNotFoundException;
 import ru.practicum.shareit.utils.ValidationException;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -46,7 +46,7 @@ class BookingServiceTests {
 
         Mockito.when(itemService.get(1)).thenReturn(ItemDto.builder().id(1).available(true).userId(1).build());
 
-        var startDate = LocalDateTime.now().plusHours(1);
+        var startDate = DateUtils.now().plusHours(1);
         var endDate = startDate.plusHours(1);
         Mockito.when(bookingRepository.findById(1)).thenReturn(Optional.of(new Booking(1, 1, BookingStatus.WAITING, 2, startDate, endDate)));
         Mockito.when(bookingRepository.findById(2)).thenReturn(Optional.of(new Booking(2, 1, BookingStatus.REJECTED, 2, startDate, endDate)));
@@ -54,7 +54,7 @@ class BookingServiceTests {
 
     @Test
     void testCannotAddForOwnItem() {
-        var startDate = LocalDateTime.now().plusHours(1);
+        var startDate = DateUtils.now().plusHours(1);
         var endDate = startDate.plusHours(1);
 
         var request = new CreateBookingRequest(1, startDate, endDate);
@@ -63,7 +63,7 @@ class BookingServiceTests {
 
     @Test
     void testCanCreateBooking() {
-        var startDate = LocalDateTime.now().plusHours(1);
+        var startDate = DateUtils.now().plusHours(1);
         var endDate = startDate.plusHours(1);
 
         Mockito.when(bookingRepository.save(Mockito.any())).thenAnswer(i -> {

@@ -12,9 +12,9 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.utils.DateUtils;
 import ru.practicum.shareit.utils.InvalidObjectException;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -111,7 +111,7 @@ public class ItemServiceImpl implements ItemService {
         get(itemId);
 
         var bookings = bookingRepository.findByBookerIdAndItemId(userId, itemId, Pageable.unpaged());
-        var now = LocalDateTime.now();
+        var now = DateUtils.now();
         if (bookings.stream().noneMatch(b -> b.getStatus() == BookingStatus.APPROVED && b.getStartDate().isBefore(now))) {
             // можно оставлять комментарии только для арендованных предметов
             throw new ItemUnavailableException(itemId);
@@ -129,7 +129,7 @@ public class ItemServiceImpl implements ItemService {
     private ItemDto addBookings(ItemDto dto, int userId) {
         if (userId == dto.getUserId()) {
             var builder = dto.toBuilder();
-            var now = LocalDateTime.now();
+            var now = DateUtils.now();
             var lastBooking = bookingRepository.findFirstByItemIdAndEndDateBeforeOrderByStartDateDesc(dto.getId(), now);
             var nextBooking = bookingRepository.findFirstByItemIdAndEndDateAfterOrderByStartDateAsc(dto.getId(), now);
 

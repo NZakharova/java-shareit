@@ -13,8 +13,8 @@ import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.utils.DateUtils;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
@@ -51,7 +51,7 @@ class BookingRepositoryTests {
         var item = new Item(null, owner.getId(), "item", "desc", true, null);
         itemRepository.save(item);
 
-        var booking = new Booking(null, item.getId(), BookingStatus.APPROVED, booker.getId(), LocalDateTime.now(), LocalDateTime.now());
+        var booking = new Booking(null, item.getId(), BookingStatus.APPROVED, booker.getId(), DateUtils.now(), DateUtils.now());
         bookingRepository.save(booking);
 
         var bookings = bookingRepository.findByOwnerIdOrderByStartDateDesc(owner.getId(), Pageable.unpaged());
@@ -78,7 +78,7 @@ class BookingRepositoryTests {
         var requests = new HashMap<BookingStatus, Booking>();
 
         for (var status : BookingStatus.values()) {
-            var booking = new Booking(null, item.getId(), status, booker.getId(), LocalDateTime.now(), LocalDateTime.now());
+            var booking = new Booking(null, item.getId(), status, booker.getId(), DateUtils.now(), DateUtils.now());
             bookingRepository.save(booking);
             requests.put(status, booking);
         }
@@ -107,7 +107,7 @@ class BookingRepositoryTests {
         var item = new Item(null, owner.getId(), "item", "desc", true, null);
         itemRepository.save(item);
 
-        var now = LocalDateTime.now();
+        var now = DateUtils.now();
 
         var currentBooking = new Booking(null, item.getId(), BookingStatus.WAITING, booker.getId(), now.minusMinutes(1), now.plusMinutes(1));
         bookingRepository.save(currentBooking);

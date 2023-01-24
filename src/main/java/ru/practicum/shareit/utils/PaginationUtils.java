@@ -15,11 +15,11 @@ public class PaginationUtils {
 
     public static Pageable create(int from, int size) {
         if (from < 0) {
-            throw new IllegalArgumentException("Параметр 'from' должен быть больше либо равен нулю");
+            throw new IllegalArgumentException("Parameter 'from' must be greater than or equal to 0");
         }
 
         if (size <= 0) {
-            throw new IllegalArgumentException("Параметр 'size' должен быть больше нуля");
+            throw new IllegalArgumentException("Parameter 'size' must be greater than 0");
         }
 
         return PageRequest.of(from / size, size);

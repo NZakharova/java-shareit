@@ -10,11 +10,11 @@ import java.time.LocalDateTime;
 public class BookingValidator {
     public void validate(CreateBookingRequest dto) {
         if (dto.getStart().isBefore(LocalDateTime.now())) {
-            throw new ValidationException("Начало не может быть раньше текущего времени");
+            throw new ValidationException("'start' cannot be less than current time");
         }
 
         if (dto.getEnd().isBefore(dto.getStart())) {
-            throw new ValidationException("Окончание не может быть раньше начала");
+            throw new ValidationException("'end' cannot be less than 'start'");
         }
     }
 }

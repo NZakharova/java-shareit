@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 public class Validator {
     public  void validateNotNull(Object obj, String name) {
         if (obj == null) {
-            throw new ValidationException("Объект должен присутсвовать, свойство: " + name);
+            throw new ValidationException("Property '" + name + "' must exist");
         }
     }
 
@@ -14,7 +14,7 @@ public class Validator {
         validateNotNull(str, name);
 
         if (str.isBlank()) {
-            throw new ValidationException("Строка не может быть пустой, свойство: " + name);
+            throw new ValidationException("String cannot be empty, property: " + name);
         }
     }
 
@@ -22,7 +22,7 @@ public class Validator {
         validateNotEmpty(email, "email");
 
         if (!email.contains("@")) {
-            throw new ValidationException("Некорректный email");
+            throw new ValidationException("Invalid email");
         }
     }
 }

@@ -70,6 +70,6 @@ public class GlobalExceptionHandler {
 
     private ResponseEntity<String> logError(Throwable throwable) {
         log.error("Ошибка", throwable);
-        return new ResponseEntity<>("Внутренняя ошибка сервера", HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

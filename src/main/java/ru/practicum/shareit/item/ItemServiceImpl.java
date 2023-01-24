@@ -71,7 +71,7 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow();
 
         if (item.getUserId() != null && existing.getUserId() != item.getUserId()) {
-            throw new InvalidObjectException("Данный предмет принадлежит другому пользователю");
+            throw new InvalidObjectException("Item " + item.getId() + " belongs to other user");
         }
 
         if (item.getName() != null) {

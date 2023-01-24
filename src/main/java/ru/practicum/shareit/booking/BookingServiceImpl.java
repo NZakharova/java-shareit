@@ -80,7 +80,7 @@ public class BookingServiceImpl implements BookingService {
             case REJECTED:
                 return toDto(bookingRepository.findByBookerIdAndStatusOrderByStartDateDesc(bookerId, BookingStatus.REJECTED, pageable));
             default:
-                throw new UnsupportedOperationException("Неизвестный критерий поиска: " + searchKind);
+                throw new UnsupportedOperationException("Unknown search kind: " + searchKind);
         }
     }
 
@@ -102,7 +102,7 @@ public class BookingServiceImpl implements BookingService {
             case REJECTED:
                 return toDto(bookingRepository.findByOwnerIdAndStatusOrderByStartDateDesc(ownerId, BookingStatus.REJECTED, pageable));
             default:
-                throw new UnsupportedOperationException("Not implemented");
+                throw new UnsupportedOperationException("Unknown search kind: " + searchKind);
         }
     }
 
@@ -116,7 +116,7 @@ public class BookingServiceImpl implements BookingService {
 
         var statusToSet = approved ? BookingStatus.APPROVED : BookingStatus.REJECTED;
         if (!isValidTransition(booking.getStatus(), statusToSet)) {
-            throw new ValidationException("Нельзя изменить статус после подтверждения брони");
+            throw new ValidationException("Cannot change status after booking was approved or rejected");
         }
 
         booking.setStatus(statusToSet);

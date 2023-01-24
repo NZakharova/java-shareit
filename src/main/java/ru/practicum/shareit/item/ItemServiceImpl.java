@@ -114,7 +114,7 @@ public class ItemServiceImpl implements ItemService {
         var now = LocalDateTime.now();
         if (bookings.stream().noneMatch(b -> b.getStatus() == BookingStatus.APPROVED && b.getStartDate().isBefore(now))) {
             // можно оставлять комментарии только для арендованных предметов
-            throw new ItemUnavailableException();
+            throw new ItemUnavailableException(itemId);
         }
 
         var c = commentMapper.toModel(comment, itemId, userId, now);

@@ -28,7 +28,7 @@ public class BookingServiceImpl implements BookingService {
     public int create(int bookerId, CreateBookingRequest dto) {
         bookingValidator.validate(dto);
         if (!itemService.get(dto.getItemId()).getAvailable()) {
-            throw new ItemUnavailableException();
+            throw new ItemUnavailableException(dto.getItemId());
         }
 
         userService.get(bookerId);

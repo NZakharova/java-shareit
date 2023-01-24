@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingStatus;
@@ -33,27 +34,32 @@ public class ItemServiceImpl implements ItemService {
     private final CommentMapper commentMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public ItemDto get(int id) {
         return itemMapper.toDto(itemRepository.findById(id).orElseThrow());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ItemDto get(int id, int userId) {
         var dto = get(id);
         return addBookings(dto, userId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemDto> getAll(int userId, Pageable pageable) {
         return itemRepository.findByUserId(userId, pageable).stream().map(itemMapper::toDto).map(x -> addBookings(x, userId)).collect(Collectors.toList());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemDto> getForRequest(int requestId) {
         return toDto(itemRepository.findByRequestId(requestId, Pageable.unpaged()));
     }
 
     @Override
+    @Transactional
     public int add(ItemDto item) {
         userService.get(item.getUserId());
 
@@ -63,6 +69,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public void update(ItemDto item) {
         itemDtoValidator.validateForUpdate(item);
 
@@ -90,11 +97,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public void delete(int id) {
         itemRepository.deleteById(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemDto> search(String text, Pageable pageable) {
         if (text == null || text.isEmpty()) {
             return Collections.emptyList();
@@ -106,6 +115,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public int addComment(int userId, int itemId, CommentDto comment) {
         // проверим что предмет существует
         get(itemId);
@@ -122,6 +132,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CommentDto findComment(int id) {
         return commentMapper.toDto(commentRepository.findById(id).orElseThrow());
     }

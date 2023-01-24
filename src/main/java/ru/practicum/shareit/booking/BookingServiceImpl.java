@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.CreateBookingRequest;
 import ru.practicum.shareit.item.ItemService;
@@ -25,6 +26,7 @@ public class BookingServiceImpl implements BookingService {
     private final ItemService itemService;
 
     @Override
+    @Transactional
     public int create(int bookerId, CreateBookingRequest dto) {
         bookingValidator.validate(dto);
         if (!itemService.get(dto.getItemId()).getAvailable()) {
@@ -43,6 +45,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BookingDto get(int bookerId, int id) {
         var booking = get(id);
         // бронь доступна только владельцу или бронируещему
@@ -53,6 +56,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BookingDto get(int id) {
         var booking = bookingRepository.findById(id).orElseThrow();
         var item = itemService.get(booking.getItemId());
@@ -62,6 +66,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingDto> getAll(int bookerId, BookingSearchKind searchKind, Pageable pageable) {
         userService.get(bookerId);
 
@@ -85,6 +90,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingDto> getAllOwned(int ownerId, BookingSearchKind searchKind, Pageable pageable) {
         userService.get(ownerId);
 
@@ -107,6 +113,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public void setApproved(int bookerId, int bookingId, boolean approved) {
         var booking = bookingRepository.findById(bookingId).orElseThrow();
         var item = itemService.get(booking.getItemId());

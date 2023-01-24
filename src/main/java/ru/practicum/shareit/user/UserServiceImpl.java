@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,6 +15,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public int add(UserDto user) {
         var userModel = convertAndValidate(user);
 
@@ -21,16 +23,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDto get(int id) {
         return UserMapper.toDto(userRepository.findById(id).orElseThrow());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDto> getAll() {
         return userRepository.findAll().stream().map(UserMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public void update(UserDto dto) {
         userDtoValidator.validateForUpdate(dto);
 
@@ -48,6 +53,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void delete(int id) {
         userRepository.deleteById(id);
     }

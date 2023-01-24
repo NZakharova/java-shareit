@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.requests.dto.ItemRequestDto;
 import ru.practicum.shareit.user.UserService;
@@ -21,6 +22,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final ItemRequestMapper mapper;
 
     @Override
+    @Transactional
     public int add(int userId, ItemRequestDto request) {
         userService.get(userId);
 
@@ -30,11 +32,13 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ItemRequestDto get(int id) {
         return toDto(itemRequestRepository.findById(id).orElseThrow());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ItemRequestDto get(int userId, int id) {
         // запросы доступны всем зарегистрированным пользователям
         userService.get(userId);
@@ -42,12 +46,14 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemRequestDto> getAllForUser(int userId, Pageable pageable) {
         userService.get(userId);
         return toDto(itemRequestRepository.findByAuthorIdOrderByCreatedDesc(userId, pageable));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemRequestDto> getAll(int userId, Pageable pageable) {
         var page = itemRequestRepository.findByAuthorIdNotOrderByCreatedDesc(userId, pageable);
         return page.map(this::toDto).toList();

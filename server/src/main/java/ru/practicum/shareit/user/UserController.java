@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.utils.Create;
 
 import java.util.List;
 
@@ -27,7 +26,7 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public UserDto createUser(@Validated(Create.class) @RequestBody UserDto user) {
+    public UserDto createUser(@RequestBody UserDto user) {
         log.info("Создание пользователя: " + user);
         var id = service.add(user);
         return service.get(id);

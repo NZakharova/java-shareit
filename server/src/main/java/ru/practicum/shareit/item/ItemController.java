@@ -6,7 +6,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.utils.Create;
 import ru.practicum.shareit.utils.PaginationUtils;
 
 import java.util.List;
@@ -31,12 +30,7 @@ public class ItemController {
     }
 
     @PostMapping("/items")
-    public ItemDto createItem(
-            @RequestHeader("X-Sharer-User-Id")
-                    int userId,
-            @Validated(Create.class)
-            @RequestBody
-                    ItemDto item) {
+    public ItemDto createItem(@RequestHeader("X-Sharer-User-Id") int userId, @RequestBody ItemDto item) {
         log.info("Создание предмета пользователем " + userId + ": " + item);
         var id = service.add(item.toBuilder().userId(userId).build());
         log.info("Создан предмет " + id);

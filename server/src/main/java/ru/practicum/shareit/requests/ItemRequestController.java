@@ -17,7 +17,7 @@ public class ItemRequestController {
     private final ItemRequestService itemRequestService;
 
     @PostMapping("/requests")
-    public ItemRequestDto createRequest(@RequestHeader("X-Sharer-User-Id") int userId, @Validated @RequestBody ItemRequestDto request) {
+    public ItemRequestDto createRequest(@RequestHeader("X-Sharer-User-Id") int userId, @RequestBody ItemRequestDto request) {
         log.info("Создание запроса пользователем " + userId + ": " + request);
         int id = itemRequestService.add(userId, request);
         log.info("Создан запрос " + id);

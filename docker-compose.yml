@@ -3,7 +3,7 @@ services:
   gateway:
     build: gateway
     image: gateway
-    container_name: shareit-gateway:latest
+    container_name: shareit-gateway
     ports:
       - "8080:8080"
     depends_on:
@@ -14,7 +14,7 @@ services:
   server:
     build: server
     image: server
-    container_name: shareit-server:latest
+    container_name: shareit-server
     ports:
       - "9090:9090"
     depends_on:
@@ -24,9 +24,9 @@ services:
 
   db:
     image: postgres:15.1-alpine
-    container_name: shareit-db:latest
-    volumes:
-      - ./postgres-data:/var/lib/postgresql/data
+    container_name: shareit-db
+#    volumes:
+#      - ./postgres-data:/var/lib/postgresql/data
     ports:
       - "6541:5432"
     environment:

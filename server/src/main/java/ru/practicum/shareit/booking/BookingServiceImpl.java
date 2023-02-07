@@ -29,7 +29,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public int create(int bookerId, CreateBookingRequest dto) {
         bookingValidator.validate(dto);
-        if (!Boolean.FALSE.equals(itemService.get(dto.getItemId()).getAvailable())) {
+        if (!Boolean.TRUE.equals(itemService.get(dto.getItemId()).getAvailable())) {
             throw new ItemUnavailableException(dto.getItemId());
         }
 

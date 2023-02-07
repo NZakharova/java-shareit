@@ -23,7 +23,7 @@ public class UserDtoValidator {
         }
 
         if (fields == 0) {
-            throw new ValidationException("Для обновления требуется хотя бы одно поле");
+            throw new ValidationException("At least one field is required for update");
         }
     }
 }

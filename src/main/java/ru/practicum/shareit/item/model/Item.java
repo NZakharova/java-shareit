@@ -31,4 +31,7 @@ public class Item {
 
     @Column(name = "available")
     private boolean available;
+
+    @Column(name = "request_id")
+    private Integer requestId;
 }

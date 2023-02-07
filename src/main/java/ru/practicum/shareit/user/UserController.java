@@ -17,27 +17,27 @@ public class UserController {
     @GetMapping("/users/{id}")
     public UserDto getUser(@PathVariable int id) {
         log.info("Запрос пользователя " + id);
-        return service.find(id);
+        return service.get(id);
     }
 
     @GetMapping("/users")
     public List<UserDto> getUsers() {
         log.info("Запрос пользователей");
-        return service.findAll();
+        return service.getAll();
     }
 
     @PostMapping("/users")
     public UserDto createUser(@Validated(Create.class) @RequestBody UserDto user) {
         log.info("Создание пользователя: " + user);
         var id = service.add(user);
-        return service.find(id);
+        return service.get(id);
     }
 
     @PatchMapping("/users/{id}")
     public UserDto updateUser(@PathVariable int id, @RequestBody UserDto user) {
         log.info("Обновление пользователя " + id + ": " + user);
         service.update(user.toBuilder().id(id).build());
-        return service.find(id);
+        return service.get(id);
     }
 
     @DeleteMapping("/users/{id}")

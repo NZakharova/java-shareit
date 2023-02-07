@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.utils.Create;
+import ru.practicum.shareit.utils.PaginationUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -19,13 +21,13 @@ public class ItemController {
     @GetMapping("/items/{id}")
     public ItemDto getItem(@RequestHeader("X-Sharer-User-Id") int userId, @PathVariable int id) {
         log.info("Запрос предмета " + id + " пользователем " + userId);
-        return service.find(id, userId);
+        return service.get(id, userId);
     }
 
     @GetMapping("/items")
-    public List<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") int userId) {
+    public List<ItemDto> getItems(@RequestHeader("X-Sharer-User-Id") int userId, @RequestParam Optional<Integer> from, @RequestParam Optional<Integer> size) {
         log.info("Запрос предметов пользователем " + userId);
-        return service.findAll(userId);
+        return service.getAll(userId, PaginationUtils.create(from, size));
     }
 
     @PostMapping("/items")
@@ -38,7 +40,7 @@ public class ItemController {
         log.info("Создание предмета пользователем " + userId + ": " + item);
         var id = service.add(item.toBuilder().userId(userId).build());
         log.info("Создан предмет " + id);
-        return service.find(id);
+        return service.get(id);
     }
 
     @PostMapping("/items/{itemId}/comment")
@@ -53,7 +55,7 @@ public class ItemController {
     public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") int userId, @PathVariable int id, @RequestBody ItemDto item) {
         log.info("Обновление предмета пользователем " + userId + " для предмета " + id + ": " + item);
         service.update(item.toBuilder().userId(userId).id(id).build());
-        return service.find(id);
+        return service.get(id);
     }
 
     @DeleteMapping("/items/{id}")
@@ -63,8 +65,8 @@ public class ItemController {
     }
 
     @GetMapping("/items/search")
-    public List<ItemDto> search(@RequestParam String text) {
+    public List<ItemDto> search(@RequestParam String text, @RequestParam Optional<Integer> from, @RequestParam Optional<Integer> size) {
         log.info("Поиск предмета по тексту: " + text);
-        return service.search(text);
+        return service.search(text, PaginationUtils.create(from, size));
     }
 }

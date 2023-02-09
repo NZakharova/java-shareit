@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.requests.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,17 +10,8 @@ import javax.validation.constraints.NotNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateItemRequest {
-    @NotNull
-    @NotBlank
-    private String name;
-
+public class CreateItemRequestRequestDto {
     @NotNull
     @NotBlank
     private String description;
-
-    @NotNull
-    private Boolean available;
-
-    private Long requestId;
 }

@@ -100,13 +100,13 @@ class ItemServiceTests {
                     .thenReturn(Optional.of(item));
         }
 
-        Mockito.when(itemRepository.findByNameContainingIgnoreCaseAndAvailable(Mockito.anyString(), Mockito.anyBoolean(), Mockito.any()))
+        Mockito.when(itemRepository.findByNameContainingIgnoreCaseAndAvailableOrderByIdAsc(Mockito.anyString(), Mockito.anyBoolean(), Mockito.any()))
                 .thenAnswer(invocation -> {
                     var query = (String) invocation.getArgument(0);
                     return new PageImpl<>(items.stream().filter(i -> i.getName().contains(query)).collect(Collectors.toList()));
                 });
 
-        Mockito.when(itemRepository.findByDescriptionContainingIgnoreCaseAndAvailable(Mockito.anyString(), Mockito.anyBoolean(), Mockito.any()))
+        Mockito.when(itemRepository.findByDescriptionContainingIgnoreCaseAndAvailableOrderByIdAsc(Mockito.anyString(), Mockito.anyBoolean(), Mockito.any()))
                 .thenAnswer(invocation -> {
                     var query = (String) invocation.getArgument(0);
                     return new PageImpl<>(items.stream().filter(i -> i.getDescription().contains(query)).collect(Collectors.toList()));

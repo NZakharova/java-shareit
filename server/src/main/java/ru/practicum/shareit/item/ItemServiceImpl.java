@@ -49,13 +49,13 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional(readOnly = true)
     public List<ItemDto> getAll(int userId, Pageable pageable) {
-        return itemRepository.findByUserId(userId, pageable).stream().map(itemMapper::toDto).map(x -> addBookings(x, userId)).collect(Collectors.toList());
+        return itemRepository.findByUserIdOrderByIdAsc(userId, pageable).stream().map(itemMapper::toDto).map(x -> addBookings(x, userId)).collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ItemDto> getForRequest(int requestId) {
-        return toDto(itemRepository.findByRequestId(requestId, Pageable.unpaged()));
+        return toDto(itemRepository.findByRequestIdOrderByIdAsc(requestId, Pageable.unpaged()));
     }
 
     @Override
@@ -108,8 +108,8 @@ public class ItemServiceImpl implements ItemService {
         if (text == null || text.isEmpty()) {
             return Collections.emptyList();
         } else {
-            var list1 = itemRepository.findByNameContainingIgnoreCaseAndAvailable(text, true, pageable).stream();
-            var list2 = itemRepository.findByDescriptionContainingIgnoreCaseAndAvailable(text, true, pageable).stream();
+            var list1 = itemRepository.findByNameContainingIgnoreCaseAndAvailableOrderByIdAsc(text, true, pageable).stream();
+            var list2 = itemRepository.findByDescriptionContainingIgnoreCaseAndAvailableOrderByIdAsc(text, true, pageable).stream();
             return Stream.concat(list1, list2).distinct().map(itemMapper::toDto).collect(Collectors.toList());
         }
     }

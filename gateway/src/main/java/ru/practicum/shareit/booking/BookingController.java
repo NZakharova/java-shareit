@@ -27,8 +27,7 @@ public class BookingController {
                                               @RequestParam(name = "state", defaultValue = "all") String stateParam,
                                               @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                               @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
-        BookingState state = BookingState.from(stateParam)
-                .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
+        BookingState state = parseState(stateParam);
         log.info("Get booking with state {}, userId={}, from={}, size={}", stateParam, userId, from, size);
         return bookingClient.getBookings(userId, state, from, size);
     }
@@ -40,10 +39,33 @@ public class BookingController {
         return bookingClient.bookItem(userId, requestDto);
     }
 
+    @PatchMapping("/{bookingId}")
+    public ResponseEntity<Object> setApproved(@RequestHeader("X-Sharer-User-Id") long userId,
+                                              @PathVariable long bookingId,
+                                              @RequestParam boolean approved) {
+        log.info("Set approved {}, booking {}, userId={}", approved, bookingId, userId);
+        return bookingClient.setApproved(userId, bookingId, approved);
+    }
+
     @GetMapping("/{bookingId}")
     public ResponseEntity<Object> getBooking(@RequestHeader("X-Sharer-User-Id") long userId,
                                              @PathVariable Long bookingId) {
         log.info("Get booking {}, userId={}", bookingId, userId);
         return bookingClient.getBooking(userId, bookingId);
+    }
+
+    @GetMapping("/owner")
+    public ResponseEntity<Object> getOwnBookings(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                 @RequestParam(name = "state", defaultValue = "all") String stateParam,
+                                                 @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                                 @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+        var state = parseState(stateParam);
+        log.info("Get booking with state {}, userId={}, from={}, size={}", stateParam, userId, from, size);
+        return bookingClient.getOwnBookings(userId, state, from, size);
+    }
+
+
+    private static BookingState parseState(String stateParam) {
+        return BookingState.from(stateParam).orElseThrow(() -> new UnsupportedOperationException("Unknown state: " + stateParam));
     }
 }

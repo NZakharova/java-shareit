@@ -8,11 +8,11 @@ import ru.practicum.shareit.item.model.Item;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Integer> {
-    Page<Item> findByUserId(int userId, Pageable pageable);
+    Page<Item> findByUserIdOrderByIdAsc(int userId, Pageable pageable);
 
-    Page<Item> findByNameContainingIgnoreCaseAndAvailable(String text, boolean available, Pageable pageable);
+    Page<Item> findByNameContainingIgnoreCaseAndAvailableOrderByIdAsc(String text, boolean available, Pageable pageable);
 
-    Page<Item> findByDescriptionContainingIgnoreCaseAndAvailable(String text, boolean available, Pageable pageable);
+    Page<Item> findByDescriptionContainingIgnoreCaseAndAvailableOrderByIdAsc(String text, boolean available, Pageable pageable);
 
-    Page<Item> findByRequestId(int requestId, Pageable pageable);
+    Page<Item> findByRequestIdOrderByIdAsc(int requestId, Pageable pageable);
 }
